@@ -1,0 +1,38 @@
+{
+  "includePermanentCodes": [
+    1598945637,
+    519360860,
+    687869582,
+    -808577937,
+    1923087953,
+    1529868062,
+    865611739,
+    2104576967,
+    -1964080415,
+    1250769522,
+    522205641,
+    -1215872470,
+    111927752,
+    -887513832
+  ],
+  "traitsByBuilding": {
+    "other:1598945637": ["popular", "upgradeable"],
+    "other:519360860": ["popular", "upgradeable"],
+    "other:687869582": ["popular", "upgradeable"],
+    "other:-808577937": ["popular", "upgradeable"],
+    "other:1923087953": ["popular", "upgradeable"],
+    "other:1529868062": ["popular", "upgradeable"],
+    "other:865611739": ["popular", "upgradeable"],
+    "other:2104576967": ["popular", "upgradeable"],
+    "other:-1964080415": ["popular", "upgradeable"],
+    "other:1250769522": ["popular", "upgradeable"],
+    "other:522205641": ["popular", "upgradeable"],
+    "other:-1215872470": ["popular", "upgradeable"],
+    "other:111927752": ["popular", "upgradeable"],
+    "other:-887513832": ["popular", "upgradeable"],
+    "other:-609346807": ["popular", "upgradeable"],
+    "other:-1523221710": ["upgradeable"],
+    "other:-1074273995": ["popular", "upgradeable"],
+    "other:-88841617": ["popular", "unique-effect", "upgradeable"]
+  }
+}

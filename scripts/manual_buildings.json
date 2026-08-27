@@ -1,0 +1,106 @@
+[
+  {
+    "sourceId": "hotspot:contemporary-art-museum",
+    "code": null,
+    "name": "Музей современного искусства",
+    "originalName": "Contemporary Art Museum",
+    "aliases": [],
+    "size": "3x2",
+    "boost": "80",
+    "area": "26х28",
+    "spec": "Образование",
+    "availability": "постоянная",
+    "traits": ["popular", "upgradeable"],
+    "manualImages": [
+      {"file": "contemporary-level10.jpg", "kind": "main", "label": "Уровень 10"},
+      {"file": "contemporary-day-l1.webp", "kind": "day", "label": "Днём · уровень 1"},
+      {"file": "contemporary-night-l1.webp", "kind": "night", "label": "Ночью · уровень 1"}
+    ]
+  },
+  {
+    "sourceId": "hotspot:martial-arts-school",
+    "code": null,
+    "name": "Школа боевых искусств",
+    "originalName": "Martial Arts School",
+    "aliases": [],
+    "size": "3x2",
+    "boost": "80",
+    "area": "26х28",
+    "spec": "Образование",
+    "availability": "постоянная",
+    "traits": ["popular", "upgradeable"],
+    "manualImages": [
+      {"file": "martial-level10.jpg", "kind": "main", "label": "Уровень 10"},
+      {"file": "martial-day-l1.webp", "kind": "day", "label": "Днём · уровень 1"},
+      {"file": "martial-night-l1.webp", "kind": "night", "label": "Ночью · уровень 1"}
+    ]
+  },
+  {
+    "sourceId": "hotspot:oceanographic-institute",
+    "code": null,
+    "name": "Институт океанографии",
+    "originalName": "Oceanographic Institute",
+    "aliases": [],
+    "size": "2x3",
+    "boost": "80",
+    "area": "26х28",
+    "spec": "Образование",
+    "availability": "постоянная",
+    "traits": ["popular", "upgradeable"],
+    "manualImages": [
+      {"file": "oceanographic-level10.jpg", "kind": "main", "label": "Уровень 10"},
+      {"file": "oceanographic-day-l1.webp", "kind": "day", "label": "Днём · уровень 1"},
+      {"file": "oceanographic-night-l1.webp", "kind": "night", "label": "Ночью · уровень 1"}
+    ]
+  },
+  {
+    "sourceId": "hotspot:northern-lights-research-institute",
+    "code": null,
+    "name": "Институт северного сияния",
+    "originalName": "Northern Lights Research Institute",
+    "aliases": ["Музей северного сияния"],
+    "size": "2x2",
+    "boost": "80",
+    "area": "26х26",
+    "spec": "Образование",
+    "availability": "постоянная",
+    "traits": ["popular", "upgradeable"],
+    "manualImages": [
+      {"file": "northern-level10.jpg", "kind": "main", "label": "Уровень 10"},
+      {"file": "northern-main.webp", "kind": "main", "label": "Изображение Wiki"}
+    ]
+  },
+  {
+    "sourceId": "hotspot:pet-park",
+    "code": -385893385,
+    "name": "Парк для домашних питомцев",
+    "originalName": "Pet Park",
+    "aliases": ["Парк для домашних животных"],
+    "size": "3x2",
+    "boost": "80",
+    "area": "26х28",
+    "spec": "Развлечения",
+    "availability": "постоянная",
+    "traits": ["popular", "upgradeable"],
+    "manualImages": [
+      {"file": "pet-main.webp", "kind": "main", "label": "Крупный план · Wiki"},
+      {"file": "pet-level10.jpg", "kind": "main", "label": "Уровень 10"}
+    ]
+  },
+  {
+    "sourceId": "hotspot:longship-museum",
+    "code": 1365487904,
+    "name": "Музей драккаров",
+    "originalName": "Longship Museum",
+    "aliases": ["Музей драконов"],
+    "size": "3x2",
+    "boost": "80",
+    "area": "26х28",
+    "spec": "Развлечения",
+    "availability": "постоянная",
+    "traits": ["popular", "upgradeable"],
+    "manualImages": [
+      {"file": "longship-level10.jpg", "kind": "main", "label": "Уровень 10"}
+    ]
+  }
+]

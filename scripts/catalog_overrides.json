@@ -1,0 +1,46 @@
+{
+  "Мост Свободы": {
+    "size": "1x2",
+    "boost": "35"
+  },
+  "Великая пирамида Гизы*": {
+    "displayName": "Великая пирамида Гизы",
+    "boost": "60"
+  },
+  "Павильон для маджонга": {
+    "originalName": "Mahjong Hall"
+  },
+  "Оазис казино": {
+    "originalName": "Oasis Casino",
+    "aliases": ["Оазис-казино"]
+  },
+  "Казино на вулкане": {
+    "originalName": "Volcano Casino",
+    "area": "26х28"
+  },
+  "Засекреченная лаборатория": {
+    "originalName": "Secret Research Lab"
+  },
+  "Чайный домик": {
+    "originalName": "Tea House"
+  },
+  "Место посадки НЛО": {
+    "originalName": "UFO Landing Site"
+  },
+  "Гавайская вечеринка": {
+    "originalName": "Luau Party"
+  },
+  "Трасса для грузовиков": {
+    "originalName": "Big Rig Route"
+  },
+  "Станция проката квадроциклов": {
+    "originalName": "Quad Bike Station"
+  },
+  "Стоянка такси": {
+    "originalName": "Taxi Stop",
+    "manualImages": [
+      {"file": "taxi-stop-day-l1.webp", "kind": "day", "label": "Днём · уровень 1"},
+      {"file": "taxi-stop-night-l1.webp", "kind": "night", "label": "Ночью · уровень 1"}
+    ]
+  }
+}

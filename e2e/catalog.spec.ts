@@ -1,0 +1,369 @@
+import { expect, test } from '@playwright/test'
+import { CatalogPage } from './pages/catalog-page'
+
+test.describe('Городской архив', () => {
+  test('включает тёмную тему по умолчанию и сохраняет выбор', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    const themeToggle = page.getByRole('button', { name: 'Включить светлую тему' })
+    await expect(themeToggle).toBeVisible()
+    await themeToggle.click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    await expect(page.getByRole('button', { name: 'Включить тёмную тему' })).toBeVisible()
+  })
+
+  test('показывает импорт списка сразу в шапке обычного каталога', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    const importButton = page.getByRole('button', { name: 'Вставить список зданий в избранное' })
+    await expect(importButton).toBeInViewport()
+    await importButton.click()
+    await expect(page.getByRole('dialog', { name: 'Добавить здания из списка' })).toBeVisible()
+  })
+
+  test('открывает Абонемент мэра первым и фильтрует сезон 71', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await expect(page.getByRole('heading', { name: 'Абонемент мэра', exact: true })).toBeVisible()
+    await expect(catalog.cards).toHaveCount(48)
+
+    await catalog.seasonFilter.press('ArrowDown')
+    const seasonList = catalog.filters.getByRole('listbox', { name: 'Сезон' })
+    await expect(seasonList).toBeVisible()
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('Enter')
+
+    await expect(page).toHaveURL(/season=71/)
+    await expect(catalog.cards).toHaveCount(5)
+    await expect(catalog.cards.filter({ hasText: 'Сезон 71' })).toHaveCount(5)
+  })
+
+  test('переключает раздел и показывает только пляжные объекты', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.showOtherBuildings()
+
+    await expect(page.getByRole('heading', { name: 'Другие здания', exact: true })).toBeVisible()
+    await catalog.specializationFilter.click()
+    await catalog.filters.getByRole('option', { name: 'Пляж', exact: true }).click()
+
+    await expect(page).toHaveURL(/spec=/)
+    await expect(catalog.specializationFilter).toContainText('Пляж')
+    await expect(catalog.cards).toHaveCount(48)
+    await page.getByRole('button', { name: 'Показать ещё 12' }).click()
+    await expect(catalog.cards).toHaveCount(60)
+    await expect(catalog.cards.filter({ hasText: 'Пляж' })).toHaveCount(60)
+  })
+
+  test('находит здание по английскому названию', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.showOtherBuildings()
+
+    await catalog.search.fill('Alpha Museum')
+
+    await expect(page).toHaveURL(/q=Alpha/)
+    await expect(catalog.cards).toHaveCount(1)
+    await expect(catalog.cards.first()).toContainText('Альфа-музей')
+    await expect(catalog.cards.first()).toContainText('Alpha Museum')
+  })
+
+  test('сохраняет избранное после перезагрузки', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    const firstCard = catalog.cards.first()
+    await firstCard.getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
+    await expect(catalog.favoritesButton).toHaveAccessibleName('Избранное 1')
+
+    await page.reload()
+    await expect(catalog.favoritesButton).toHaveAccessibleName('Избранное 1')
+    await catalog.favoritesButton.click()
+
+    await expect(page.getByRole('heading', { name: 'Ваше избранное' })).toBeVisible()
+    await expect(catalog.cards).toHaveCount(1)
+  })
+
+  test('показывает пустое состояние и восстанавливает каталог', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await catalog.search.fill('zz-no-such-building-123')
+
+    await expect(page.getByRole('heading', { name: 'Таких зданий не найдено' })).toBeVisible()
+    await page.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click()
+    await expect(catalog.cards).toHaveCount(48)
+  })
+
+  test('открывает подробную карточку со всеми ключевыми данными', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await catalog.cards.first().getByRole('button', { name: /^Открыть сведения:/ }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByText('Размер', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Бонус населения', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Сезон', { exact: true })).toBeVisible()
+    await expect(dialog.getByRole('button', { name: /Добавить .+ в избранное|Убрать .+ из избранного/ })).toBeVisible()
+  })
+
+  test('показывает несколько фотографий здания и переключает их', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.search.fill('Цветочный магазин Лепесток')
+
+    await catalog.cards.first().getByRole('button', { name: /^Открыть сведения:/ }).click()
+
+    const dialog = page.getByRole('dialog')
+    const thumbnails = dialog.getByRole('group', { name: 'Фотографии здания' }).getByRole('button')
+    await expect(thumbnails).toHaveCount(3)
+    await expect(dialog.getByText('3 фото', { exact: true })).toBeVisible()
+    await expect(thumbnails.nth(0)).toHaveClass(/is-active/)
+    await dialog.getByRole('button', { name: 'Следующее фото' }).click()
+    await expect(thumbnails.nth(1)).toHaveClass(/is-active/)
+  })
+
+  test('показывает три проверенных фото добавленного Hot Spot-здания', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.showOtherBuildings()
+    await catalog.search.fill('Музей современного искусства')
+
+    await expect(catalog.cards).toHaveCount(1)
+    const card = catalog.cards.first()
+    await expect(card).toContainText('3 фото')
+    const dots = card.locator('.building-card__carousel-dots i')
+    await expect(dots).toHaveCount(3)
+    await expect(dots.nth(0)).toHaveClass(/is-active/)
+
+    const cardGallery = card.locator('.building-card__image-button')
+    await cardGallery.scrollIntoViewIfNeeded()
+    const galleryBox = await cardGallery.boundingBox()
+    if (!galleryBox) throw new Error('Галерея карточки не найдена')
+    await page.mouse.move(galleryBox.x + galleryBox.width * 0.75, galleryBox.y + galleryBox.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(galleryBox.x + galleryBox.width * 0.25, galleryBox.y + galleryBox.height / 2, { steps: 5 })
+    await page.mouse.up()
+    await expect(dots.nth(1)).toHaveClass(/is-active/)
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+
+    await card.getByRole('button', { name: 'Сведения · 3 фото' }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('group', { name: 'Фотографии здания' }).getByRole('button')).toHaveCount(3)
+    await expect(dialog.getByRole('button', { name: 'Показать фото: Уровень 10' })).toBeVisible()
+    await expect(dialog.getByRole('button', { name: 'Показать фото: Днём · уровень 1' })).toBeVisible()
+    await expect(dialog.getByRole('button', { name: 'Показать фото: Ночью · уровень 1' })).toBeVisible()
+  })
+
+  test('показывает пирамиду без звёздочки, с итоговым бонусом и выделенными характеристиками', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.showOtherBuildings()
+    await catalog.search.fill('Великая пирамида Гизы')
+
+    const card = catalog.cards.first()
+    await expect(card).toContainText('Великая пирамида Гизы')
+    await expect(card).not.toContainText('Гизы*')
+    await expect(card).toContainText('4 × 4 │ 16 клеток')
+    await expect(card).toContainText('+60% к населению')
+    await expect(card.locator('.building-card__feature')).toBeVisible()
+    await card.getByRole('button', { name: /^Открыть сведения:/ }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.locator('.detail-highlight')).toHaveCount(4)
+    await expect(dialog.locator('.detail-highlight--size')).toContainText('4 × 4 │ 16 клеток')
+    await expect(dialog.locator('.detail-highlight--boost')).toContainText('+60% к населению')
+    await expect(dialog.locator('.detail-highlight--specialization')).toContainText('Монументы')
+    await expect(dialog.locator('.detail-highlight--area')).toContainText('26 × 26')
+    await expect(dialog.getByText('Доступен отдельный ночной вид')).toBeVisible()
+    await expect(dialog).not.toContainText('популярный объект')
+  })
+
+  test('оставляет избранное видимым после прокрутки страницы', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await expect(catalog.favoritesButton).toBeInViewport()
+    await expect(catalog.favoritesButton).toHaveCSS('position', 'fixed')
+  })
+
+  test('фильтрует популярные, редкие и прокачиваемые здания', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await page.getByRole('checkbox', { name: /Популярные \/ редкие/ }).check()
+
+    await expect(page).toHaveURL(/rare=1/)
+    await expect(catalog.cards).toHaveCount(7)
+    await expect(catalog.cards.locator('.building-card__feature')).toHaveCount(7)
+  })
+
+  test('показывает 38 популярных зданий из таблицы в отдельном разделе', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await page.locator('.catalog-nav > button').nth(2).click()
+
+    await expect(page).toHaveURL(/view=popular/)
+    await expect(page.getByRole('heading', { name: 'Популярные здания', exact: true })).toBeVisible()
+    await expect(catalog.cards).toHaveCount(38)
+    await expect(catalog.cards.filter({ hasText: 'Ракета "Артемида II"' })).toHaveCount(0)
+  })
+
+  test('раскладывает специализации ровно в две строки на компьютере', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.showOtherBuildings()
+
+    const tops = await page.locator('.specialization-rail > button').evaluateAll((buttons) =>
+      [...new Set(buttons.map((button) => Math.round(button.getBoundingClientRect().top)))],
+    )
+    expect(tops).toHaveLength(2)
+  })
+
+  test('копирует все избранные названия, даже скрытые поиском', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    const firstName = await catalog.cards.first().getByRole('heading').innerText()
+    await catalog.cards.first().getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
+    await catalog.cards.nth(1).getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
+    await catalog.favoritesButton.click()
+    await catalog.search.fill(firstName)
+    await expect(catalog.cards).toHaveCount(1)
+
+    await page.getByRole('button', { name: 'Копировать все названия' }).click()
+    const copied = await page.evaluate(() => navigator.clipboard.readText())
+    expect(copied.split('\n')).toHaveLength(2)
+    expect(copied).toContain(firstName)
+  })
+
+  test('очищает всё избранное только после отдельного подтверждения', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await catalog.cards.first().getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
+    await catalog.cards.nth(1).getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
+    await expect(catalog.favoritesButton).toHaveAccessibleName('Избранное 2')
+
+    const clearButton = page.getByRole('button', { name: 'Очистить всё избранное' })
+    await clearButton.click()
+    const dialog = page.getByRole('dialog', { name: 'Очистить всё избранное?' })
+    await expect(dialog).toContainText('2 здания')
+
+    await dialog.getByRole('button', { name: 'Нет, оставить' }).click()
+    await expect(dialog).toBeHidden()
+    await expect(catalog.favoritesButton).toHaveAccessibleName('Избранное 2')
+
+    await clearButton.click()
+    await dialog.getByRole('button', { name: 'Очистить 2 здания' }).click()
+    await expect(dialog).toBeHidden()
+    await expect(catalog.favoritesButton).toHaveAccessibleName('Избранное 0')
+    await expect(clearButton).toBeDisabled()
+  })
+
+  test('вставляет русские и английские названия одной кнопкой и сохраняет их после перезагрузки', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await page.evaluate(() => navigator.clipboard.writeText('- Космопорт\nGhost Portal\nНет такого здания'))
+    await page.getByRole('button', { name: 'Вставить список зданий в избранное' }).click()
+
+    const dialog = page.getByRole('dialog', { name: 'Добавить здания из списка' })
+    await dialog.getByRole('button', { name: 'Вставить из буфера' }).click()
+    await expect(dialog.getByLabel('Список названий зданий')).toHaveValue('- Космопорт\nGhost Portal\nНет такого здания')
+    await expect(dialog.getByText('Найдено: 2')).toBeVisible()
+    await expect(dialog.getByText('Не найдено: 1')).toBeVisible()
+    await dialog.getByRole('button', { name: 'Добавить 2 здания' }).click()
+
+    await expect(catalog.cards).toHaveCount(2)
+    await page.reload()
+    await expect(catalog.cards).toHaveCount(2)
+    await expect(catalog.cards.filter({ hasText: 'Призрачный портал' })).toHaveCount(1)
+  })
+
+  test('просит выбрать вариант для одинакового названия', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await page.getByRole('button', { name: 'Вставить список зданий в избранное' }).click()
+
+    const dialog = page.getByRole('dialog', { name: 'Добавить здания из списка' })
+    await dialog.getByLabel('Список названий зданий').fill('Приют для животных')
+    await expect(dialog.getByText('Нужно уточнить: 1')).toBeVisible()
+    await dialog.getByRole('radio', { name: /Сезон 67/ }).check()
+    await dialog.getByRole('button', { name: 'Добавить 1 здание' }).click()
+
+    await expect(catalog.cards).toHaveCount(1)
+    await expect(catalog.cards.first()).toContainText('Сезон 67')
+  })
+})
+
+test.describe('Мобильный каталог', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('применяет сезон через мобильную панель фильтров', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await page.getByRole('button', { name: /^Фильтры/ }).click()
+    const dialog = page.getByRole('dialog', { name: 'Фильтры и сортировка' })
+    await expect(dialog).toBeVisible()
+    const seasonTrigger = dialog.getByRole('button', { name: /^Сезон / })
+    await seasonTrigger.click()
+    await dialog.getByRole('option', { name: /^71\./ }).click()
+    await dialog.getByRole('button', { name: 'Показать 5 зданий' }).click()
+
+    await expect(dialog).toBeHidden()
+    await expect(catalog.cards).toHaveCount(5)
+    await expect(page).toHaveURL(/season=71/)
+  })
+
+  test('показывает тёмную тему, импорт и три раздела в одной строке', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await expect(page.getByRole('button', { name: 'Вставить список зданий в избранное' })).toBeInViewport()
+    const navButtons = page.locator('.catalog-nav > button')
+    await expect(navButtons).toHaveCount(3)
+    const tops = await navButtons.evaluateAll((buttons) =>
+      buttons.map((button) => Math.round(button.getBoundingClientRect().top)),
+    )
+    expect(new Set(tops).size).toBe(1)
+    await expect(navButtons.nth(2)).toBeInViewport()
+  })
+
+  test('открывает и листает галерею Hot Spot-здания на телефоне', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.showOtherBuildings()
+    await catalog.search.fill('Музей современного искусства')
+
+    await catalog.cards.first().getByRole('button', { name: 'Сведения · 3 фото' }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByText('3 фото', { exact: true })).toBeVisible()
+    const thumbnails = dialog.getByRole('group', { name: 'Фотографии здания' }).getByRole('button')
+    await expect(thumbnails.nth(0)).toHaveClass(/is-active/)
+
+    const stage = dialog.locator('.detail-dialog__stage')
+    await stage.scrollIntoViewIfNeeded()
+    const stageBox = await stage.boundingBox()
+    if (!stageBox) throw new Error('Область фотографии не найдена')
+    await page.mouse.move(stageBox.x + stageBox.width * 0.75, stageBox.y + stageBox.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(stageBox.x + stageBox.width * 0.25, stageBox.y + stageBox.height / 2, { steps: 5 })
+    await page.mouse.up()
+    await expect(thumbnails.nth(1)).toHaveClass(/is-active/)
+  })
+})

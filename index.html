@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#091615" />
+    <script>
+      (() => {
+        try {
+          const savedTheme = window.localStorage.getItem('scbi-catalog-theme')
+          const theme = savedTheme === 'light' ? 'light' : 'dark'
+          document.documentElement.dataset.theme = theme
+          document.querySelector('meta[name="theme-color"]')
+            ?.setAttribute('content', theme === 'dark' ? '#091615' : '#102b2c')
+        } catch {
+          document.documentElement.dataset.theme = 'dark'
+        }
+      })()
+    </script>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <meta
+      name="description"
+      content="Независимая библиотека зданий SimCity BuildIt: сезоны, размеры, бонусы и избранное."
+    />
+    <title>Городской архив — каталог зданий SimCity BuildIt</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

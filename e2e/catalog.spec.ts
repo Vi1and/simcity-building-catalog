@@ -193,6 +193,21 @@ test.describe('Городской архив', () => {
     await expect(thumbnails.nth(1)).toHaveClass(/is-active/)
   })
 
+  test('показывает три новые фотографии Campus Park вместо старой галереи', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.search.fill('Университетский парк')
+
+    await expect(catalog.cards).toHaveCount(1)
+    const card = catalog.cards.first()
+    const image = card.getByRole('img', { name: /^Университетский парк —/ })
+    await expect(card.locator('.building-card__image-count')).toHaveAccessibleName('3 фото')
+    await expect(image).toHaveAttribute('src', /0ace4294dd5f29bae830\.webp$/)
+
+    await card.getByRole('button', { name: 'Следующее фото' }).click()
+    await expect(image).toHaveAttribute('src', /3e5cb99c659aa156ada9\.webp$/)
+  })
+
   test('не обрезает фото, масштабирует его и закрывает окно по фону', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()

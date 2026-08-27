@@ -291,7 +291,12 @@
     ]
   },
   "Университетский парк": {
-    "imageSequence": [3]
+    "originalName": "Campus Park",
+    "manualImages": [
+      {"file": "fandom-refresh/campus-park-day.webp", "kind": "main", "label": "Днём · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Campus_Park", "sourceFile": "Campus Parkday.jpg"},
+      {"file": "fandom-refresh/campus-park-night.webp", "kind": "night", "label": "Ночью · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Campus_Park", "sourceFile": "Campus Parknight.jpg"},
+      {"file": "fandom-refresh/campus-park-main.webp", "kind": "main", "label": "Карточка здания · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Campus_Park", "sourceFile": "Campus Park.png"}
+    ]
   },
   "Парк для домашних питомцев": {
     "originalName": "Pet Park",

@@ -133,6 +133,24 @@ describe('exported catalog data', () => {
     ])
   })
 
+  it('replaces the Campus Park gallery with the three verified Fandom photos', () => {
+    const name = 'Университетский парк'
+    const park = catalog.buildings.find((building) => building.name === name)
+
+    expect(catalogOverrides[name]?.manualImages?.map((image) => image.file)).toEqual([
+      'fandom-refresh/campus-park-day.webp',
+      'fandom-refresh/campus-park-night.webp',
+      'fandom-refresh/campus-park-main.webp',
+    ])
+    expect(park?.originalName).toBe('Campus Park')
+    expect(park?.image).toBe('buildings/0ace4294dd5f29bae830.webp')
+    expect(park?.images.map((image) => image.src)).toEqual([
+      'buildings/0ace4294dd5f29bae830.webp',
+      'buildings/3e5cb99c659aa156ada9.webp',
+      'buildings/2e37ab865dc462e37829.webp',
+    ])
+  })
+
   it('exports every verified supplemental photo set with main, day, and night photos', () => {
     const supplementalGalleries = Object.entries(catalogOverrides)
       .filter(([, override]) => override.additionalGalleries?.length)

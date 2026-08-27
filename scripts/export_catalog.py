@@ -373,6 +373,8 @@ def merge_record_configs(
     for config in configs:
         if not config:
             continue
+        if config.get("manualImages"):
+            configured_images = []
         merged.update(
             {
                 key: value
@@ -475,14 +477,19 @@ def mayor_record(
     code = int(raw["code"])
     name = str(raw["name"]).strip()
     season = int(raw["season"])
-    source_images, matched_original_name = image_sources_for(
-        name,
-        matches,
-        galleries,
-        images_dir,
-        raw.get("additionalGalleries") or [],
-    )
-    images = export_images(source_images, copied)
+    manual_images = raw.get("manualImages") or []
+    if manual_images:
+        images = export_configured_images(manual_images, copied)
+        matched_original_name = None
+    else:
+        source_images, matched_original_name = image_sources_for(
+            name,
+            matches,
+            galleries,
+            images_dir,
+            raw.get("additionalGalleries") or [],
+        )
+        images = export_images(source_images, copied)
     images = merge_exported_images(
         images,
         export_configured_images(raw.get("additionalImages") or [], copied),

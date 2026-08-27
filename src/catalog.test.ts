@@ -19,6 +19,7 @@ const building = (overrides: Partial<Building>): Building => ({
   tier: null,
   passType: null,
   event: null,
+  effectDescription: null,
   isFeatured: false,
   traits: [],
   specialization: null,

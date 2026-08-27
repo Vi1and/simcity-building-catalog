@@ -45,6 +45,7 @@ import type { Building, CatalogData, Section, SectionFilters, SortMode } from '.
 import { formatFavoriteShareText, matchFavoriteNames } from './favoriteSharing'
 import { buildingMatchesTheme, buildingThemeIds, catalogThemes, findCatalogTheme } from './themes'
 import { useFavorites } from './useFavorites'
+import { CatalogThemeIcon, MayorPassIcon, SpecializationIcon } from './catalogIcons'
 
 const catalog = catalogJson as CatalogData
 const ALL_SORT_MODES = Object.keys(sortLabels) as SortMode[]
@@ -67,9 +68,10 @@ const readInitialTheme = (): Theme =>
 
 const readInitialMobileColumns = (): MobileColumns => {
   try {
-    return window.localStorage.getItem('scbi-mobile-columns') === '2' ? 2 : 1
+    const savedColumns = window.localStorage.getItem('scbi-mobile-columns')
+    return savedColumns === '1' ? 1 : 2
   } catch {
-    return 1
+    return 2
   }
 }
 
@@ -151,6 +153,13 @@ const formatPhotoCount = (total: number): string => `${Math.max(total, 1)} фо�
 
 const formatEffectArea = (value: string): string =>
   value.replace(/\s*[xх×]\s*/gi, ' × ')
+
+const compactUniqueEffect = (building: Building): string | null => {
+  if (!building.traits.includes('unique-effect')) return null
+
+  const label = building.effectDescription?.trim() || 'Создаёт особый визуальный эффект'
+  return building.effectArea ? `${label} · ${formatEffectArea(building.effectArea)}` : label
+}
 
 const sectionLabels: Record<Section, { title: string; eyebrow: string }> = {
   mayor: { title: 'Абонемент мэра', eyebrow: '71 сезон' },
@@ -270,9 +279,11 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
   const activeImage = images[activeImageIndex] ?? images[0]
   const canShowPrevious = activeImageIndex > 0
   const canShowNext = activeImageIndex < images.length - 1
-  const category = building.section === 'mayor'
+  const categoryLabel = building.section === 'mayor'
     ? `Сезон ${building.season ?? '—'}`
     : building.specialization ?? 'Другое'
+  const detailsLabel = images.length > 1 ? `Сведения · ${formatPhotoCount(images.length)}` : 'Все сведения'
+  const cardFeatureLabel = compactUniqueEffect(building) ?? (building.isFeatured ? featureSummary(building) : null)
 
   const showRelativeImage = (offset: number) => {
     if (images.length < 2) return
@@ -333,6 +344,7 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
               loading="lazy"
               decoding="async"
               draggable={false}
+              style={{ objectPosition: activeImage.focus }}
             />
           ) : (
             <span className="building-card__placeholder" aria-hidden="true">
@@ -360,15 +372,21 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
             <span><ChevronRight size={15} /></span>
           </button>
         )}
-        <span className="building-card__index">{category}</span>
-        {images.length > 0 && (
-          <span
-            className="building-card__image-count"
-            aria-label={formatPhotoCount(images.length)}
-          >
-            <Images size={14} /> {formatPhotoCount(images.length)}
-          </span>
-        )}
+        <span
+          className={`building-card__index building-card__index--${building.section === 'mayor' ? 'season' : 'specialization'}`}
+          role="img"
+          aria-label={categoryLabel}
+          title={categoryLabel}
+        >
+          {building.section === 'mayor' ? (
+            <>
+              <MayorPassIcon />
+              <strong aria-hidden="true">{building.season ?? '—'}</strong>
+            </>
+          ) : (
+            <SpecializationIcon specialization={building.specialization} />
+          )}
+        </span>
         {images.length > 1 && (
           <span
             className="building-card__carousel-dots"
@@ -389,9 +407,9 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
           {building.originalName && <p lang="en">{building.originalName}</p>}
         </div>
 
-        {building.isFeatured && (
+        {cardFeatureLabel && (
           <span className="building-card__feature">
-            <Sparkles size={13} /> {featureSummary(building)}
+            <Sparkles size={13} /> <span>{cardFeatureLabel}</span>
           </span>
         )}
 
@@ -408,29 +426,48 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
           </div>
         </div>
 
-        {building.section === 'mayor' ? (
-          <div className="building-card__context">
+        <div className={`building-card__context building-card__context--${building.section}`}>
+          {building.section === 'mayor' ? (
+            <>
+              <div>
+                <span className="building-card__context-label">Тема сезона</span>
+                <strong>{building.seasonName ?? 'Не указана'}</strong>
+              </div>
+              <div>
+                <span className="building-card__context-label">Дата выхода</span>
+                <strong>{building.released ?? 'Не указана'}</strong>
+              </div>
+            </>
+          ) : building.released ? (
             <div>
-              <span>Тема сезона</span>
-              <strong>{building.seasonName ?? 'Не указана'}</strong>
-            </div>
-            <div>
-              <span>Дата выхода</span>
-              <strong>{building.released ?? 'Не указана'}</strong>
-            </div>
-          </div>
-        ) : building.released ? (
-          <div className="building-card__context">
-            <div>
-              <span>Появилось</span>
+              <span className="building-card__context-label">Появилось</span>
               <strong>{building.released}</strong>
             </div>
+          ) : null}
+          <div className="building-card__context-actions">
+            {images.length > 0 && (
+              <span
+                className="building-card__image-count"
+                role="img"
+                aria-label={formatPhotoCount(images.length)}
+                title={formatPhotoCount(images.length)}
+              >
+                <strong aria-hidden="true">{images.length}</strong>
+                <Images size={14} aria-hidden="true" />
+              </span>
+            )}
+            <button
+              type="button"
+              className="details-link"
+              onClick={() => onOpen(building)}
+              aria-label={detailsLabel}
+              title={detailsLabel}
+            >
+              <span>Открыть</span>
+              <ChevronRight size={15} aria-hidden="true" />
+            </button>
           </div>
-        ) : null}
-
-        <button type="button" className="details-link" onClick={() => onOpen(building)}>
-          {images.length > 1 ? `Сведения · ${formatPhotoCount(images.length)}` : 'Все сведения'} <ChevronRight size={16} />
-        </button>
+        </div>
       </div>
     </article>
   )
@@ -942,7 +979,10 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
                 src={activeImage.src}
                 alt={building.name + ' — ' + activeImage.label}
                 draggable={false}
-                style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }}
+                style={{
+                  objectPosition: activeImage.focus,
+                  transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})`,
+                }}
               />
             ) : (
               <Building2 size={72} />
@@ -1509,6 +1549,13 @@ export default function App() {
     setView('themes')
   }
 
+  const showFavoritesView = () => {
+    setView('favorites')
+    window.setTimeout(() => {
+      document.getElementById('catalog-heading')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 0)
+  }
+
   const toggleFavoritesView = () => {
     setView((current) => current === 'favorites' ? 'catalog' : 'favorites')
     window.setTimeout(() => {
@@ -1596,7 +1643,14 @@ export default function App() {
     ? 'Личная коллекция'
     : view === 'themes'
       ? activeTheme
-        ? `${activeTheme.icon} ${THEME_COUNTS.get(activeTheme.id) ?? 0} объектов в подборке`
+        ? (
+          <>
+            <span className="section-kicker__theme-icon">
+              <CatalogThemeIcon themeId={activeTheme.id} fallback={activeTheme.icon} />
+            </span>
+            {THEME_COUNTS.get(activeTheme.id) ?? 0} объектов в подборке
+          </>
+        )
         : `${catalogThemes.length} тематик · ${THEMED_BUILDINGS_COUNT} объектов`
     : view === 'popular'
       ? POPULAR_BUILDINGS_COUNT + ' популярных объектов'
@@ -1733,23 +1787,23 @@ export default function App() {
           <div className="collection-bar collection-bar--mobile-dock" aria-label="Обмен избранным">
             <div className="collection-bar__summary">
               <span className="collection-bar__icon"><Heart size={18} fill={favoriteIds.size ? 'currentColor' : 'none'} /></span>
-              <span>
+              <span className="collection-bar__copy">
                 <strong>Поделиться избранным</strong>
                 <small>{favoriteIds.size ? `${pluralizeBuildings(favoriteIds.size)} в подборке` : 'Добавляйте здания сердцем'}</small>
               </span>
+              <button
+                type="button"
+                className="collection-bar__open"
+                onClick={showFavoritesView}
+                aria-label="Перейти в избранное"
+                aria-current={view === 'favorites' ? 'page' : undefined}
+              >
+                <span>Перейти</span>
+                <ChevronRight size={15} aria-hidden="true" />
+              </button>
             </div>
             <div className="favorite-actions">
               <span className="local-note"><Info size={15} /> На этом устройстве</span>
-              <button
-                type="button"
-                className="button-secondary"
-                disabled={!favoriteShareText}
-                onClick={copyFavorites}
-                aria-label="Копировать все названия"
-                title="Копировать все названия"
-              >
-                <Copy size={16} /> Копировать
-              </button>
               <button
                 type="button"
                 className="button-danger"
@@ -1764,6 +1818,16 @@ export default function App() {
                 <ClipboardPaste size={16} />
                 <span className="favorite-action-label--full">Вставить список</span>
                 <span className="favorite-action-label--compact">Вставить</span>
+              </button>
+              <button
+                type="button"
+                className="button-secondary"
+                disabled={!favoriteShareText}
+                onClick={copyFavorites}
+                aria-label="Копировать все названия"
+                title="Копировать все названия"
+              >
+                <Copy size={16} /> Копировать
               </button>
             </div>
           </div>
@@ -1848,7 +1912,9 @@ export default function App() {
                   aria-pressed={activeFilters.theme === theme.id}
                   title={theme.description}
                 >
-                  <span className="theme-rail__icon" aria-hidden="true">{theme.icon}</span>
+                  <span className="theme-rail__icon" aria-hidden="true">
+                    <CatalogThemeIcon themeId={theme.id} fallback={theme.icon} />
+                  </span>
                   <span><strong>{theme.label}</strong><small>{THEME_COUNTS.get(theme.id) ?? 0} объектов</small></span>
                 </button>
               ))}

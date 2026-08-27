@@ -9,6 +9,7 @@ const catalogOverrides = catalogOverridesJson as Record<string, {
   originalName?: string
   additionalGalleries?: string[]
   additionalImages?: Array<{ file: string; kind: string; label: string }>
+  manualImages?: Array<{ file: string; kind: string; label: string }>
 }>
 
 const hotSpotNames = [
@@ -32,6 +33,7 @@ const hotSpotNames = [
   'Трасса для грузовиков',
   'Станция проката квадроциклов',
   'Стоянка такси',
+  'Стадион "Золотой гол"',
 ] as const
 
 const findUpgradeableOther = (name: string): Building | undefined =>
@@ -56,12 +58,37 @@ describe('exported catalog data', () => {
     expect(popular.some((building) => building.name === 'Ракета "Артемида II"')).toBe(false)
   })
 
-  it('contains all 20 regional Hot Spot buildings from the linked sheet', () => {
+  it('contains all 21 regional Hot Spot buildings from the linked sheet', () => {
     for (const name of hotSpotNames) {
       const building = findUpgradeableOther(name)
       expect(building, name).toBeDefined()
       expect(building?.isFeatured, name).toBe(true)
       expect(building?.boost.max, name).toBe(80)
+    }
+  })
+
+  it('exports a concise action description for every unique effect', () => {
+    const effectBuildings = catalog.buildings.filter((building) => building.traits.includes('unique-effect'))
+    expect(effectBuildings.length).toBeGreaterThan(0)
+    for (const building of effectBuildings) {
+      expect(building.effectDescription?.trim(), building.name).toBeTruthy()
+    }
+
+    expect(catalog.buildings.find((building) => building.event === 'ЭФФЕКТ снег на весь город')?.effectDescription)
+      .toBe('Покрывает весь город снегом')
+    expect(catalog.buildings.find((building) => building.event === 'фейерверк и  лазеры')?.effectDescription)
+      .toBe('Запускает фейерверк и лазерное шоу')
+  })
+
+  it('keeps deployed IDs stable when only gallery presentation changes', () => {
+    const expectedIds = new Map([
+      ['Стадион "Золотой гол"', 'other:-252552977:be534aa29f'],
+      ['Снежный замок', 'other:-1674266991:2e9c2a4683'],
+      ['Затопленная деревня', 'other:-2127049860:e525deb41b'],
+      ['Альфа-шоу дронов', 'other:-1749904249:c1aa8d5c65'],
+    ])
+    for (const [name, id] of expectedIds) {
+      expect(catalog.buildings.find((building) => building.name === name)?.id, name).toBe(id)
     }
   })
 
@@ -97,7 +124,7 @@ describe('exported catalog data', () => {
     const supplementalGalleries = Object.entries(catalogOverrides)
       .filter(([, override]) => override.additionalGalleries?.length)
     const supplementalImages = Object.entries(catalogOverrides)
-      .filter(([, override]) => override.additionalImages?.length)
+      .filter(([, override]) => override.additionalImages?.length && !override.manualImages?.length)
     const supplementalPhotoSets = [...supplementalGalleries, ...supplementalImages]
 
     expect(supplementalGalleries).toHaveLength(50)
@@ -111,6 +138,19 @@ describe('exported catalog data', () => {
         expect(new Set(building.images.map((image) => image.kind)), name)
           .toEqual(new Set(['main', 'day', 'night']))
       }
+    }
+  })
+
+  it('keeps AI reconstructions explicitly labelled and strictly last', () => {
+    for (const name of ['Кей-поп концертная сцена', 'Скульптура «Огненный конь»']) {
+      const building = catalog.buildings.find((item) => item.name === name)
+      expect(building, name).toBeDefined()
+      expect(building?.images[0].kind, name).toBe('main')
+      expect(building?.images.at(-1), name).toMatchObject({
+        kind: 'event',
+        label: 'AI-реконструкция · последний кадр',
+      })
+      expect(building?.images.slice(0, -1).every((image) => !image.label.startsWith('AI-')), name).toBe(true)
     }
   })
 

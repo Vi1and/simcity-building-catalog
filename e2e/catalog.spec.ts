@@ -7,10 +7,48 @@ test.describe('Городской архив', () => {
     await catalog.open()
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    const darkColorPolicy = await page.locator('html').evaluate((element) => {
+      const style = getComputedStyle(element)
+      return { colorScheme: style.colorScheme, forcedColorAdjust: style.forcedColorAdjust }
+    })
+    expect(darkColorPolicy.colorScheme).toContain('dark')
+    expect(darkColorPolicy.forcedColorAdjust).toBe('auto')
+    const authoredDarkScheme = await page.evaluate(() => {
+      for (const sheet of Array.from(document.styleSheets)) {
+        for (const rule of Array.from(sheet.cssRules)) {
+          if (
+            rule instanceof CSSStyleRule &&
+            rule.selectorText.includes('html[data-theme') &&
+            rule.selectorText.includes('dark')
+          ) {
+            return rule.style.getPropertyValue('color-scheme')
+          }
+        }
+      }
+      return ''
+    })
+    expect(authoredDarkScheme.split(/\s+/).sort()).toEqual(['dark', 'only'])
+    for (const selector of ['.building-card__index', '.building-card__image-count']) {
+      const element = page.locator(selector).first()
+      await expect(element).toBeAttached()
+      expect(await element.evaluate((node) => getComputedStyle(node).forcedColorAdjust)).toBe('none')
+    }
     const themeToggle = page.getByRole('button', { name: 'Включить светлую тему' })
     await expect(themeToggle).toBeVisible()
     await themeToggle.click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    expect(await page.locator('html').evaluate((element) => getComputedStyle(element).colorScheme)).toContain('light')
+    const authoredLightScheme = await page.evaluate(() => {
+      for (const sheet of Array.from(document.styleSheets)) {
+        for (const rule of Array.from(sheet.cssRules)) {
+          if (rule instanceof CSSStyleRule && rule.selectorText.split(',').some((selector) => selector.trim() === ':root')) {
+            return rule.style.getPropertyValue('color-scheme')
+          }
+        }
+      }
+      return ''
+    })
+    expect(authoredLightScheme.split(/\s+/).sort()).toEqual(['light', 'only'])
 
     await page.reload()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
@@ -58,7 +96,8 @@ test.describe('Городской архив', () => {
 
     await expect(page).toHaveURL(/season=71/)
     await expect(catalog.cards).toHaveCount(5)
-    await expect(catalog.cards.filter({ hasText: 'Сезон 71' })).toHaveCount(5)
+    await expect(catalog.cards.locator('.building-card__index[aria-label="Сезон 71"]')).toHaveCount(5)
+    await expect(catalog.cards.first().locator('[data-catalog-icon="mayor-pass"]')).toBeVisible()
   })
 
   test('переключает раздел и показывает только пляжные объекты', async ({ page }) => {
@@ -75,7 +114,8 @@ test.describe('Городской архив', () => {
     await expect(catalog.cards).toHaveCount(48)
     await page.getByRole('button', { name: 'Показать ещё 12' }).click()
     await expect(catalog.cards).toHaveCount(60)
-    await expect(catalog.cards.filter({ hasText: 'Пляж' })).toHaveCount(60)
+    await expect(catalog.cards.locator('.building-card__index[aria-label="Пляж"]')).toHaveCount(60)
+    await expect(catalog.cards.first().locator('[data-catalog-icon="beach"]')).toBeVisible()
   })
 
   test('находит здание по английскому названию', async ({ page }) => {
@@ -136,6 +176,8 @@ test.describe('Городской архив', () => {
     const catalog = new CatalogPage(page)
     await catalog.open()
     await catalog.search.fill('Цветочный магазин Лепесток')
+
+    await expect(catalog.cards.first().locator('.building-card__feature')).toContainText('Запускает городское шествие')
 
     await catalog.cards.first().getByRole('button', { name: /^Открыть сведения:/ }).click()
 
@@ -199,7 +241,9 @@ test.describe('Городской архив', () => {
 
     await expect(catalog.cards).toHaveCount(1)
     const card = catalog.cards.first()
-    await expect(card).toContainText('3 фото')
+    const imageCount = card.locator('.building-card__context-actions .building-card__image-count')
+    await expect(imageCount).toHaveAccessibleName('3 фото')
+    await expect(imageCount).toHaveText('3')
     const dots = card.locator('.building-card__carousel-dots i')
     await expect(dots).toHaveCount(3)
     await expect(dots.nth(0)).toHaveClass(/is-active/)
@@ -251,6 +295,8 @@ test.describe('Городской архив', () => {
     await expect(card).toContainText('4 × 4 │ 16 клеток')
     await expect(card).toContainText('+60% к населению')
     await expect(card.locator('.building-card__feature')).toBeVisible()
+    await expect(card.locator('.building-card__index')).toHaveAccessibleName('Монументы')
+    await expect(card.locator('[data-catalog-icon="monuments"]')).toBeVisible()
     await card.getByRole('button', { name: /^Открыть сведения:/ }).click()
 
     const dialog = page.getByRole('dialog')
@@ -331,6 +377,12 @@ test.describe('Городской архив', () => {
     await expect(page.getByRole('heading', { name: 'Тематические подборки', exact: true })).toBeVisible()
     const themeRail = page.getByLabel('Выбор тематики')
     await expect(themeRail.getByRole('button')).toHaveCount(24)
+    const italy = themeRail.getByRole('button', { name: /^Италия/ })
+    await expect(italy.locator('[data-country-theme="italy"]')).toBeVisible()
+    await expect(italy).not.toContainText('🇮🇹')
+    expect(
+      await italy.locator('.catalog-country-flag').evaluate((element) => getComputedStyle(element).forcedColorAdjust),
+    ).toBe('none')
 
     await themeRail.getByRole('button', { name: /^Пустыня/ }).click()
 
@@ -355,7 +407,7 @@ test.describe('Городской архив', () => {
     await expect(page).toHaveURL(/section=other.*q=Gardencourt/)
     const card = catalog.cards.filter({ hasText: 'Поместье Гарденкорт' })
     await expect(card).toHaveCount(1)
-    await expect(card).toContainText('3 фото')
+    await expect(card.locator('.building-card__image-count')).toHaveAccessibleName('3 фото')
     await card.getByRole('button', { name: 'Сведения · 3 фото' }).click()
     await expect(page.getByRole('dialog').getByRole('group', { name: 'Фотографии здания' }).getByRole('button')).toHaveCount(3)
   })
@@ -445,7 +497,7 @@ test.describe('Городской архив', () => {
     await dialog.getByRole('button', { name: 'Добавить 1 здание' }).click()
 
     await expect(catalog.cards).toHaveCount(1)
-    await expect(catalog.cards.first()).toContainText('Сезон 67')
+    await expect(catalog.cards.first().locator('.building-card__index')).toHaveAccessibleName('Сезон 67')
   })
 })
 
@@ -518,32 +570,38 @@ test.describe('Мобильный каталог', () => {
       return {
         navigationTop: navigationRect?.top ?? -1,
         navigationBottom: navigationRect?.bottom ?? -1,
+        dockLeft: dockRect?.left ?? -1,
+        dockWidth: dockRect?.width ?? -1,
         dockBottom: dockRect?.bottom ?? -1,
         viewportHeight: window.innerHeight,
+        viewportWidth: window.innerWidth,
       }
     })
     expect(Math.abs(positions.navigationBottom - positions.viewportHeight)).toBeLessThanOrEqual(1)
     expect(Math.abs(positions.dockBottom - positions.navigationTop)).toBeLessThanOrEqual(1)
+    expect(Math.abs(positions.dockLeft)).toBeLessThanOrEqual(1)
+    expect(Math.abs(positions.dockWidth - positions.viewportWidth)).toBeLessThanOrEqual(1)
+    await expect(page.locator('.floating-favorites')).toBeHidden()
 
     const actionButtons = collectionDock.locator('.favorite-actions button')
     await expect(actionButtons).toHaveCount(3)
+    await expect(collectionDock.getByRole('button', { name: 'Перейти в избранное' })).toBeVisible()
+    await expect(actionButtons.nth(0)).toHaveAccessibleName('Очистить всё избранное')
+    await expect(actionButtons.nth(1)).toContainText('Вставить')
+    await expect(actionButtons.nth(2)).toHaveAccessibleName('Копировать все названия')
     const actionTops = await actionButtons.evaluateAll((buttons) =>
       buttons.map((button) => Math.round(button.getBoundingClientRect().top)),
     )
     expect(new Set(actionTops).size).toBe(1)
   })
 
-  test('переключает карточки с одной на две в ряду и сохраняет выбор', async ({ page }) => {
+  test('показывает по две карточки по умолчанию и сохраняет явный выбор', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()
 
     const grid = page.locator('.building-grid')
     const singleButton = page.getByRole('button', { name: 'Показывать по одному зданию в ряду' })
     const doubleButton = page.getByRole('button', { name: 'Показывать по два здания в ряду' })
-    await expect(singleButton).toHaveAttribute('aria-pressed', 'true')
-    await expect(grid).toHaveClass(/building-grid--mobile-1/)
-
-    await doubleButton.click()
     await expect(doubleButton).toHaveAttribute('aria-pressed', 'true')
     await expect(grid).toHaveClass(/building-grid--mobile-2/)
     const firstRowTops = await catalog.cards.evaluateAll((cards) =>
@@ -551,9 +609,35 @@ test.describe('Мобильный каталог', () => {
     )
     expect(new Set(firstRowTops).size).toBe(1)
 
+    await singleButton.click()
+    await expect(singleButton).toHaveAttribute('aria-pressed', 'true')
+    await expect(grid).toHaveClass(/building-grid--mobile-1/)
+
     await page.reload()
-    await expect(page.getByRole('button', { name: 'Показывать по два здания в ряду' })).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.locator('.building-grid')).toHaveClass(/building-grid--mobile-2/)
+    await expect(page.getByRole('button', { name: 'Показывать по одному зданию в ряду' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('.building-grid')).toHaveClass(/building-grid--mobile-1/)
+  })
+
+  test('переносит длинное описание уникального эффекта в сетке из двух карточек', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.showOtherBuildings()
+    await catalog.search.fill('Башня с новогодним световым шоу (2025)')
+
+    const effect = catalog.cards.first().locator('.building-card__feature > span')
+    await expect(effect).toContainText('Запускает фейерверк и лазерное шоу')
+    const metrics = await effect.evaluate((element) => {
+      const style = getComputedStyle(element)
+      return {
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        clientHeight: element.clientHeight,
+        whiteSpace: style.whiteSpace,
+      }
+    })
+    expect(metrics.whiteSpace).toBe('normal')
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
+    expect(metrics.clientHeight).toBeGreaterThan(10)
   })
 
   test('показывает возврат в каталог над и под избранными зданиями', async ({ page }) => {
@@ -562,7 +646,7 @@ test.describe('Мобильный каталог', () => {
 
     await catalog.cards.first().getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
     await catalog.cards.nth(1).getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
-    await catalog.favoritesButton.click()
+    await page.locator('.collection-bar--mobile-dock').getByRole('button', { name: 'Перейти в избранное' }).click()
 
     const returnButtons = page.getByRole('button', { name: 'Вернуться в каталог' })
     await expect(returnButtons).toHaveCount(2)

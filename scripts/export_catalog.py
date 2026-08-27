@@ -322,6 +322,47 @@ def merge_exported_images(*groups: list[dict[str, str]]) -> list[dict[str, str]]
     return merged
 
 
+def configure_exported_images(
+    images: list[dict[str, str]],
+    sequence: list[int] | None,
+    focus_by_index: dict[str, str] | None,
+) -> list[dict[str, str]]:
+    configured = [dict(image) for image in images]
+
+    for raw_index, raw_focus in (focus_by_index or {}).items():
+        try:
+            index = int(raw_index) - 1
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"Invalid image focus index: {raw_index}") from error
+        if index < 0 or index >= len(configured):
+            raise ValueError(
+                f"Image focus index {raw_index} is outside a gallery of {len(configured)} images"
+            )
+        focus = clean_text(raw_focus)
+        if focus:
+            configured[index]["focus"] = focus
+
+    if sequence is None:
+        return configured
+
+    selected: list[dict[str, str]] = []
+    seen_indices: set[int] = set()
+    for raw_index in sequence:
+        try:
+            index = int(raw_index) - 1
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"Invalid image sequence index: {raw_index}") from error
+        if index < 0 or index >= len(configured):
+            raise ValueError(
+                f"Image sequence index {raw_index} is outside a gallery of {len(configured)} images"
+            )
+        if index in seen_indices:
+            continue
+        seen_indices.add(index)
+        selected.append(configured[index])
+    return selected
+
+
 def merge_record_configs(
     record: dict[str, Any],
     *configs: dict[str, Any] | None,
@@ -371,6 +412,57 @@ def feature_traits(
     return traits
 
 
+def describe_effect(event: str | None) -> str:
+    normalized = re.sub(r'\s+', ' ', (event or '').strip().casefold())
+    if 'шествие призрак' in normalized:
+        return 'Запускает шествие призраков'
+    if 'шествие зомби' in normalized:
+        return 'Запускает шествие зомби'
+    if 'шествие' in normalized or normalized == 'создает событие':
+        return 'Запускает городское шествие'
+    if 'снег' in normalized and 'весь город' in normalized:
+        return 'Покрывает весь город снегом'
+    if 'дождь' in normalized and 'весь город' in normalized:
+        return 'Вызывает дождь во всём городе'
+    if ('зеленый туман' in normalized or 'зелёный туман' in normalized) and 'весь город' in normalized:
+        return 'Окутывает весь город зелёным туманом'
+    if 'летняя жара' in normalized:
+        return 'Создаёт эффект летней жары'
+    if 'фейерверк' in normalized and 'лазер' in normalized:
+        return 'Запускает фейерверк и лазерное шоу'
+    if 'фейерверк' in normalized:
+        return 'Запускает фейерверк'
+    if 'голограм' in normalized:
+        return 'Показывает голограмму'
+    if 'ночн' in normalized and 'эффект' in normalized:
+        return 'Включает особую ночную подсветку'
+    if event:
+        return event[:1].upper() + event[1:].lower()
+    return 'Создаёт особый визуальный эффект'
+
+
+def load_previous_other_ids(path: Path) -> dict[tuple[int, str], list[str]]:
+    """Reuse deployed IDs so a gallery-only refresh cannot invalidate favorites."""
+    if not path.exists():
+        return {}
+    try:
+        payload = load_json(path)
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {}
+
+    grouped: dict[tuple[int, str], list[str]] = {}
+    for building in payload.get("buildings", []):
+        if building.get("section") != "other" or building.get("code") is None:
+            continue
+        name = clean_text(building.get("name"))
+        building_id = clean_text(building.get("id"))
+        if name is None or building_id is None:
+            continue
+        key = (int(building["code"]), name)
+        grouped.setdefault(key, []).append(building_id)
+    return grouped
+
+
 def mayor_record(
     raw: dict[str, Any],
     themes: dict[str, str],
@@ -395,6 +487,11 @@ def mayor_record(
         images,
         export_configured_images(raw.get("additionalImages") or [], copied),
     )
+    images = configure_exported_images(
+        images,
+        raw.get("imageSequence"),
+        raw.get("imageFocusByIndex"),
+    )
     original_name = clean_text(raw.get("originalName")) or matched_original_name
     theme = clean_text(raw.get("theme")) or clean_text(themes.get(str(season)))
     event = clean_text(raw.get("event"))
@@ -416,6 +513,7 @@ def mayor_record(
         "tier": clean_text(raw.get("tier")),
         "passType": clean_text(raw.get("free")),
         "event": event,
+        "effectDescription": describe_effect(event) if "unique-effect" in traits else None,
         "isFeatured": bool(traits),
         "traits": traits,
         "specialization": None,
@@ -431,6 +529,7 @@ def other_record(
     images_dir: Path,
     copied: dict[Path, str],
     configured_traits: dict[str, list[str]],
+    previous_ids: dict[tuple[int, str], list[str]],
 ) -> dict[str, Any]:
     raw_code = raw.get("code")
     code = int(raw_code) if raw_code is not None else None
@@ -453,19 +552,24 @@ def other_record(
         images,
         export_configured_images(raw.get("additionalImages") or [], copied),
     )
+    images = configure_exported_images(
+        images,
+        raw.get("imageSequence"),
+        raw.get("imageFocusByIndex"),
+    )
     original_name = clean_text(raw.get("originalName")) or matched_original_name
     event = clean_text(raw.get("event"))
     traits = feature_traits("other", code, event, configured_traits, raw.get("traits"))
     source_identity = code if code is not None else clean_text(raw.get("sourceId"))
     if source_identity is None:
         raise ValueError(f"Building without a game code requires sourceId: {name}")
-    stable_appearance = clean_text(raw.get("sourceId")) or json.dumps(
-        raw,
-        ensure_ascii=False,
-        sort_keys=True,
+    stable_appearance = clean_text(raw.get("sourceId")) or (
+        f"identity={source_identity}|name={source_name}|ordinal={raw.get('_stableOrdinal', 0)}"
     )
+    previous_id_candidates = previous_ids.get((code, name), []) if code is not None else []
+    previous_id = previous_id_candidates.pop(0) if previous_id_candidates else None
     return {
-        "id": stable_id(
+        "id": previous_id or stable_id(
             "other",
             source_identity,
             source_name,
@@ -486,6 +590,7 @@ def other_record(
         "tier": None,
         "passType": None,
         "event": event,
+        "effectDescription": describe_effect(event) if "unique-effect" in traits else None,
         "isFeatured": bool(traits),
         "traits": traits,
         "specialization": clean_text(raw.get("spec")) or "Без категории",
@@ -556,10 +661,16 @@ def main() -> None:
             seen_other.add(signature)
             unique_other.append(record)
     other_source = unique_other
+    source_ordinals: dict[tuple[Any, Any, Any], int] = {}
+    for record in other_source:
+        source_key = (record.get("code"), record.get("name"), record.get("sourceId"))
+        record["_stableOrdinal"] = source_ordinals.get(source_key, 0)
+        source_ordinals[source_key] = int(record["_stableOrdinal"]) + 1
 
     OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_IMAGES.mkdir(parents=True, exist_ok=True)
     copied: dict[Path, str] = {}
+    previous_other_ids = load_previous_other_ids(OUTPUT_JSON)
 
     buildings = [
         mayor_record(
@@ -581,13 +692,19 @@ def main() -> None:
             images_dir,
             copied,
             configured_traits,
+            previous_other_ids,
         )
         for record in other_source
     )
 
     ids = [item["id"] for item in buildings]
     if len(ids) != len(set(ids)):
-        raise RuntimeError("Catalog contains duplicate stable IDs.")
+        duplicate_ids = sorted({building_id for building_id in ids if ids.count(building_id) > 1})
+        duplicate_names = {
+            building_id: [item["name"] for item in buildings if item["id"] == building_id]
+            for building_id in duplicate_ids
+        }
+        raise RuntimeError(f"Catalog contains duplicate stable IDs: {duplicate_names}")
 
     used_images = {
         image["src"]
@@ -614,7 +731,7 @@ def main() -> None:
     )
     payload = {
         "meta": {
-            "schemaVersion": 4,
+            "schemaVersion": 6,
             "counts": {"mayor": len(mayor_source), "other": len(other_source)},
             "images": len(used_images),
             "missingImages": sum(1 for item in buildings if not item["image"]),

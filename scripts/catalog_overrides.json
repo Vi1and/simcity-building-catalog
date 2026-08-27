@@ -188,6 +188,14 @@
   },
   "Стадион \"Золотой гол\"": {
     "originalName": "Golden Goal Stadium",
+    "manualImages": [
+      {"file": "fandom-refresh/golden-goal-stadium-level3-day.webp", "kind": "main", "label": "Уровень 3 · днём", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Golden_Goal_Stadium", "sourceFile": "Golden Goal Stadium Level 3 Day.png"},
+      {"file": "fandom-refresh/golden-goal-stadium-level3-night.webp", "kind": "night", "label": "Уровень 3 · ночью", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Golden_Goal_Stadium", "sourceFile": "Golden Goal Stadium Level 3 Night.png"},
+      {"file": "fandom-refresh/golden-goal-stadium-level2-day.webp", "kind": "day", "label": "Уровень 2 · днём", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Golden_Goal_Stadium", "sourceFile": "Golden Goal Stadium Level 2 Day.png"},
+      {"file": "fandom-refresh/golden-goal-stadium-level2-night.webp", "kind": "night", "label": "Уровень 2 · ночью", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Golden_Goal_Stadium", "sourceFile": "Golden Goal Stadium Level 2 Night.png"},
+      {"file": "fandom-refresh/golden-goal-stadium-level1-day.webp", "kind": "day", "label": "Уровень 1 · днём", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Golden_Goal_Stadium", "sourceFile": "Golden Goal Stadium Level 1 Day.png"},
+      {"file": "fandom-refresh/golden-goal-stadium-level1-night.webp", "kind": "night", "label": "Уровень 1 · ночью", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Golden_Goal_Stadium", "sourceFile": "Golden Goal Stadium Level 1 Night.png"}
+    ],
     "additionalGalleries": ["Golden Goal Stadium"]
   },
   "Старый фермерский дом": {
@@ -280,6 +288,130 @@
     "manualImages": [
       {"file": "taxi-stop-day-l1.webp", "kind": "day", "label": "Днём · уровень 1"},
       {"file": "taxi-stop-night-l1.webp", "kind": "night", "label": "Ночью · уровень 1"}
+    ]
+  },
+  "Университетский парк": {
+    "imageSequence": [3]
+  },
+  "Парк для домашних питомцев": {
+    "originalName": "Pet Park",
+    "manualImages": [
+      {"file": "fandom-refresh/pet-park-level3-transparent.webp", "kind": "main", "label": "Уровень 3 · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Pet_Park"},
+      {"file": "pet-level10.jpg", "kind": "main", "label": "Уровень 10"}
+    ]
+  },
+  "Институт океанографии": {
+    "imageSequence": [2, 1, 3]
+  },
+  "Театр Коста-Рики": {
+    "originalName": "Costa Rica Theater",
+    "manualImages": [
+      {"file": "fandom-refresh/costa-rica-theater-main.webp", "kind": "main", "label": "Основное фото · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Costa_Rica_Theater", "sourceFile": "Costa Rica Theater.png"}
+    ]
+  },
+  "Осенние высоты": {
+    "imageSequence": [2, 1]
+  },
+  "Снежный замок": {
+    "imageSequence": [3, 2],
+    "imageFocusByIndex": {
+      "3": "center 68%"
+    }
+  },
+  "Океанографический музей": {
+    "originalName": "Oceanographic Museum",
+    "manualImages": [
+      {"file": "fandom-second-half/oceanographic-museum-main.webp", "kind": "main", "label": "Основное фото · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Oceanographic_Museum", "sourceFile": "Oceanographic Museum.jpeg"}
+    ]
+  },
+  "Охотничьи угодья": {
+    "originalName": "Hunters' Quarters",
+    "manualImages": [
+      {"file": "fandom-second-half/hunters-quarters-day.webp", "kind": "main", "label": "Днём · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Hunters%27_Quarters"},
+      {"file": "fandom-second-half/hunters-quarters-night.webp", "kind": "night", "label": "Ночью · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Hunters%27_Quarters"}
+    ]
+  },
+  "Альфа-шоу дронов": {
+    "imageSequence": [3, 2, 4, 5, 6]
+  },
+  "Шары Дикис": {
+    "originalName": "The Diquís Spheres",
+    "manualImages": [
+      {"file": "fandom-second-half/diquis-spheres-main.webp", "kind": "main", "label": "Основное фото · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/The_Diqu%C3%ADs_Spheres"},
+      {"file": "fandom-second-half/diquis-spheres-day.webp", "kind": "day", "label": "Днём · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/The_Diqu%C3%ADs_Spheres"},
+      {"file": "fandom-second-half/diquis-spheres-night.webp", "kind": "night", "label": "Ночью · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/The_Diqu%C3%ADs_Spheres"}
+    ]
+  },
+  "Башня для наблюдения за китами": {
+    "originalName": "Whale Watching Tower",
+    "manualImages": [
+      {"file": "fandom-second-half/whale-watching-tower-day.webp", "kind": "main", "label": "Днём · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Whale_Watching_Tower", "sourceFile": "Whale Watching Tower Day.png"},
+      {"file": "fandom-second-half/whale-watching-tower-night.webp", "kind": "night", "label": "Ночью · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Whale_Watching_Tower", "sourceFile": "Whale Watching Tower Night.png"}
+    ]
+  },
+  "Весенний экспресс": {
+    "originalName": "Spring Express",
+    "manualImages": [
+      {"file": "community-corrections/spring-express.jpg", "kind": "main", "label": "Основное фото", "sourcePage": "https://vk.com/photo-61529959_456257520", "sourceFile": "456257520"}
+    ]
+  },
+  "Новогодняя ярмарка": {
+    "originalName": "New Year Fair",
+    "manualImages": [
+      {"file": "community-corrections/new-year-fair.jpg", "kind": "main", "label": "Основное фото", "sourcePage": "https://vk.com/photo-61529959_456257444", "sourceFile": "456257444"}
+    ]
+  },
+  "Прайд-фонтан": {
+    "imageSequence": [2, 1]
+  },
+  "Затопленная деревня": {
+    "imageSequence": [2, 1]
+  },
+  "Жуткий парк": {
+    "imageSequence": [2, 1]
+  },
+  "Дерево-монстр": {
+    "imageSequence": [2, 1]
+  },
+  "Озеро Сайма": {
+    "imageSequence": [2, 3]
+  },
+  "Загородный пикник": {
+    "imageSequence": [2, 3]
+  },
+  "Легендарная праздничная елка": {
+    "imageSequence": [2, 1]
+  },
+  "Кей-поп концертная сцена": {
+    "originalName": "K-Pop Concert Stage",
+    "manualImages": [
+      {"file": "fandom-second-half/k-pop-concert-stage-promo.webp", "kind": "main", "label": "Реальный кадр промо · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/K-Pop_Concert_Stage", "sourceFile": "K-Pop Live Promo.jpg"}
+    ],
+    "additionalImages": [
+      {"file": "generated/k-pop-stage-ai-reconstruction.webp", "kind": "event", "label": "AI-реконструкция · последний кадр"}
+    ]
+  },
+  "Башня с двумя кранами": {
+    "originalName": "Two-Cranes Tower",
+    "manualImages": [
+      {"file": "fandom-second-half/two-cranes-tower-day-focus.webp", "kind": "main", "label": "Днём · крупный план · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Two-Cranes_Tower", "sourceFile": "Two-Cranes Towerday.jpg"},
+      {"file": "fandom-second-half/two-cranes-tower-night-focus.webp", "kind": "night", "label": "Ночью · крупный план · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Two-Cranes_Tower", "sourceFile": "Two-Cranes Towernight1.jpg"}
+    ]
+  },
+  "Скульптура «Огненный конь»": {
+    "originalName": "Fire Horse Sculpture",
+    "manualImages": [
+      {"file": "fandom-second-half/fire-horse-day-clean.webp", "kind": "main", "label": "Днём · чистый реальный кадр", "sourcePage": "https://simcity-buildit.fandom.com/wiki/File:Fire_Horse_Offer,_View_1._(2026).png", "sourceFile": "Fire Horse Offer, View 1. (2026).png"},
+      {"file": "fandom-second-half/fire-horse-night-clean.webp", "kind": "night", "label": "Ночью · чистый реальный кадр", "sourcePage": "https://simcity-buildit.fandom.com/wiki/File:Fire_Horse_Offer,_View_2._(2026).png", "sourceFile": "Fire Horse Offer, View 2. (2026).png"}
+    ],
+    "additionalImages": [
+      {"file": "generated/fire-horse-ai-reconstruction.webp", "kind": "event", "label": "AI-реконструкция · последний кадр"}
+    ]
+  },
+  "Опера Монте-Карло": {
+    "originalName": "Opéra de Monte-Carlo",
+    "manualImages": [
+      {"file": "fandom-refresh/opera-monte-carlo-main.webp", "kind": "main", "label": "Основное фото · Fandom", "sourcePage": "https://simcity-buildit.fandom.com/wiki/Op%C3%A9ra_de_Monte-Carlo", "sourceFile": "Opéra de Monte-Carlo.png"}
     ]
   }
 }

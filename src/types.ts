@@ -31,6 +31,7 @@ export interface BuildingImage {
   src: string
   kind: 'main' | 'day' | 'night' | 'event'
   label: string
+  focus?: string
 }
 
 export interface Building {
@@ -50,6 +51,7 @@ export interface Building {
   tier: string | null
   passType: string | null
   event: string | null
+  effectDescription: string | null
   isFeatured: boolean
   traits: FeatureTrait[]
   specialization: string | null

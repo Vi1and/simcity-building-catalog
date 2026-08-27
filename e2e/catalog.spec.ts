@@ -263,12 +263,40 @@ test.describe('Городской архив', () => {
     await expect(dialog).not.toContainText('популярный объект')
   })
 
-  test('оставляет избранное видимым после прокрутки страницы', async ({ page }) => {
+  test('оставляет быстрые действия видимыми после прокрутки страницы', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
     await expect(catalog.favoritesButton).toBeInViewport()
-    await expect(catalog.favoritesButton).toHaveCSS('position', 'fixed')
+    await expect(page.locator('.floating-actions')).toHaveCSS('position', 'fixed')
+  })
+
+  test('возвращает от конца списка к фильтрам, не к первому экрану', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    const scrollButton = page.getByRole('button', { name: 'Наверх к фильтрам каталога' })
+
+    await expect(scrollButton).toHaveCount(0)
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await expect(scrollButton).toBeVisible()
+    await scrollButton.click()
+
+    const controls = page.getByRole('region', { name: 'Поиск и фильтры каталога' })
+    await expect(controls).toBeFocused()
+    await expect.poll(async () => page.evaluate(() => {
+      const controlsTop = document.getElementById('catalog-controls')?.getBoundingClientRect().top ?? -1
+      const navBottom = document.querySelector('.catalog-nav-wrap')?.getBoundingClientRect().bottom ?? -1
+      return Math.abs(controlsTop - navBottom - 16)
+    })).toBeLessThanOrEqual(2)
+
+    const positions = await page.evaluate(() => ({
+      controlsTop: document.getElementById('catalog-controls')?.getBoundingClientRect().top ?? -1,
+      navBottom: document.querySelector('.catalog-nav-wrap')?.getBoundingClientRect().bottom ?? -1,
+      heroBottom: document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 1,
+    }))
+    expect(positions.controlsTop).toBeGreaterThanOrEqual(positions.navBottom + 14)
+    expect(positions.controlsTop).toBeLessThanOrEqual(positions.navBottom + 18)
+    expect(positions.heroBottom).toBeLessThan(0)
   })
 
   test('фильтрует популярные, редкие и прокачиваемые здания', async ({ page }) => {
@@ -302,7 +330,7 @@ test.describe('Городской архив', () => {
     await expect(page).toHaveURL(/view=themes/)
     await expect(page.getByRole('heading', { name: 'Тематические подборки', exact: true })).toBeVisible()
     const themeRail = page.getByLabel('Выбор тематики')
-    await expect(themeRail.getByRole('button')).toHaveCount(13)
+    await expect(themeRail.getByRole('button')).toHaveCount(24)
 
     await themeRail.getByRole('button', { name: /^Пустыня/ }).click()
 
@@ -310,6 +338,26 @@ test.describe('Городской архив', () => {
     await expect(page.getByRole('heading', { name: 'Пустыня', exact: true })).toBeVisible()
     await expect(catalog.cards.filter({ hasText: 'Великий сфинкс Гизы' })).toHaveCount(1)
     await expect(catalog.specializationFilter).toBeVisible()
+  })
+
+  test('подсказывает Gardencourt Estate в другом разделе и открывает все три фото', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.search.fill('Gardencourt Estate')
+
+    await expect(catalog.cards).toHaveCount(0)
+    const crossSectionMatch = page.getByRole('button', {
+      name: 'Показать в Других зданиях: Поместье Гарденкорт',
+    })
+    await expect(crossSectionMatch).toBeVisible()
+    await crossSectionMatch.click()
+
+    await expect(page).toHaveURL(/section=other.*q=Gardencourt/)
+    const card = catalog.cards.filter({ hasText: 'Поместье Гарденкорт' })
+    await expect(card).toHaveCount(1)
+    await expect(card).toContainText('3 фото')
+    await card.getByRole('button', { name: 'Сведения · 3 фото' }).click()
+    await expect(page.getByRole('dialog').getByRole('group', { name: 'Фотографии здания' }).getByRole('button')).toHaveCount(3)
   })
 
   test('раскладывает специализации ровно в две строки на компьютере', async ({ page }) => {
@@ -404,6 +452,24 @@ test.describe('Городской архив', () => {
 test.describe('Мобильный каталог', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
 
+  test('возвращает к мобильным фильтрам компактной кнопкой', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+
+    const scrollButton = page.getByRole('button', { name: 'Наверх к фильтрам каталога' })
+    await expect(scrollButton).toBeVisible()
+    await expect(scrollButton).toHaveCSS('width', '48px')
+    await scrollButton.click()
+
+    await expect.poll(async () => page.evaluate(() => {
+      const controlsTop = document.getElementById('catalog-controls')?.getBoundingClientRect().top ?? -1
+      return Math.abs(controlsTop - 16)
+    })).toBeLessThanOrEqual(2)
+    await expect(page.getByRole('button', { name: /^Фильтры/ })).toBeInViewport()
+    await expect(page.locator('.site-header')).not.toBeInViewport()
+  })
+
   test('применяет сезон через мобильную панель фильтров', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()
@@ -435,6 +501,76 @@ test.describe('Мобильный каталог', () => {
     )
     expect(new Set(tops).size).toBe(1)
     await expect(navButtons.nth(3)).toBeInViewport()
+  })
+
+  test('держит навигацию и обмен избранным у нижнего края без перекрытия', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    const navigation = page.locator('.catalog-nav-wrap')
+    const collectionDock = page.locator('.collection-bar--mobile-dock')
+    await expect(navigation).toHaveCSS('position', 'fixed')
+    await expect(collectionDock).toHaveCSS('position', 'fixed')
+
+    const positions = await page.evaluate(() => {
+      const navigationRect = document.querySelector('.catalog-nav-wrap')?.getBoundingClientRect()
+      const dockRect = document.querySelector('.collection-bar--mobile-dock')?.getBoundingClientRect()
+      return {
+        navigationTop: navigationRect?.top ?? -1,
+        navigationBottom: navigationRect?.bottom ?? -1,
+        dockBottom: dockRect?.bottom ?? -1,
+        viewportHeight: window.innerHeight,
+      }
+    })
+    expect(Math.abs(positions.navigationBottom - positions.viewportHeight)).toBeLessThanOrEqual(1)
+    expect(Math.abs(positions.dockBottom - positions.navigationTop)).toBeLessThanOrEqual(1)
+
+    const actionButtons = collectionDock.locator('.favorite-actions button')
+    await expect(actionButtons).toHaveCount(3)
+    const actionTops = await actionButtons.evaluateAll((buttons) =>
+      buttons.map((button) => Math.round(button.getBoundingClientRect().top)),
+    )
+    expect(new Set(actionTops).size).toBe(1)
+  })
+
+  test('переключает карточки с одной на две в ряду и сохраняет выбор', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    const grid = page.locator('.building-grid')
+    const singleButton = page.getByRole('button', { name: 'Показывать по одному зданию в ряду' })
+    const doubleButton = page.getByRole('button', { name: 'Показывать по два здания в ряду' })
+    await expect(singleButton).toHaveAttribute('aria-pressed', 'true')
+    await expect(grid).toHaveClass(/building-grid--mobile-1/)
+
+    await doubleButton.click()
+    await expect(doubleButton).toHaveAttribute('aria-pressed', 'true')
+    await expect(grid).toHaveClass(/building-grid--mobile-2/)
+    const firstRowTops = await catalog.cards.evaluateAll((cards) =>
+      cards.slice(0, 2).map((card) => Math.round(card.getBoundingClientRect().top)),
+    )
+    expect(new Set(firstRowTops).size).toBe(1)
+
+    await page.reload()
+    await expect(page.getByRole('button', { name: 'Показывать по два здания в ряду' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('.building-grid')).toHaveClass(/building-grid--mobile-2/)
+  })
+
+  test('показывает возврат в каталог над и под избранными зданиями', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await catalog.cards.first().getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
+    await catalog.cards.nth(1).getByRole('button', { name: /^Добавить .+ в избранное$/ }).click()
+    await catalog.favoritesButton.click()
+
+    const returnButtons = page.getByRole('button', { name: 'Вернуться в каталог' })
+    await expect(returnButtons).toHaveCount(2)
+    await expect(returnButtons.first()).toBeVisible()
+    await expect(returnButtons.last()).toBeAttached()
+    await returnButtons.first().click()
+    await expect(page).toHaveURL(/section=mayor/)
+    await expect(page.getByRole('heading', { name: 'Абонемент мэра', exact: true })).toBeVisible()
   })
 
   test('открывает и листает галерею Hot Spot-здания на телефоне', async ({ page }) => {
@@ -483,5 +619,43 @@ test.describe('Мобильный каталог', () => {
     await page.mouse.move(stageBox.x + stageBox.width * 0.25, stageBox.y + stageBox.height / 2, { steps: 5 })
     await page.mouse.up()
     await expect(thumbnails.nth(1)).toHaveClass(/is-active/)
+  })
+})
+
+test.describe('Планшетный каталог', () => {
+  test.use({ viewport: { width: 768, height: 1024 }, hasTouch: true })
+
+  test('размещает панель избранного над нижней навигацией и оставляет контент доступным', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    await expect(page.locator('.catalog-nav-wrap')).toHaveCSS('position', 'fixed')
+    await expect(page.locator('.collection-bar--mobile-dock')).toHaveCSS('position', 'fixed')
+    const positions = await page.evaluate(() => {
+      const navigation = document.querySelector('.catalog-nav-wrap')?.getBoundingClientRect()
+      const dock = document.querySelector('.collection-bar--mobile-dock')?.getBoundingClientRect()
+      return {
+        navigationTop: navigation?.top ?? -1,
+        dockBottom: dock?.bottom ?? -1,
+        documentPaddingBottom: Number.parseFloat(getComputedStyle(document.querySelector('.app-shell') as HTMLElement).paddingBottom),
+      }
+    })
+    expect(Math.abs(positions.dockBottom - positions.navigationTop)).toBeLessThanOrEqual(1)
+    expect(positions.documentPaddingBottom).toBeGreaterThanOrEqual(150)
+
+    const footer = page.locator('.site-footer')
+    await footer.scrollIntoViewIfNeeded()
+    await page.evaluate(async () => {
+      for (let frame = 0; frame < 12; frame += 1) {
+        window.scrollTo(0, document.documentElement.scrollHeight)
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      }
+    })
+    await expect(footer).toBeInViewport()
+    const footerAndDock = await page.evaluate(() => ({
+      footerBottom: document.querySelector('.site-footer')?.getBoundingClientRect().bottom ?? -1,
+      dockTop: document.querySelector('.collection-bar--mobile-dock')?.getBoundingClientRect().top ?? -1,
+    }))
+    expect(footerAndDock.footerBottom).toBeLessThanOrEqual(footerAndDock.dockTop)
   })
 })

@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   Archive,
+  ArrowUp,
   Building2,
   CalendarDays,
   Check,
@@ -59,9 +60,18 @@ const THEME_COUNTS: ReadonlyMap<string, number> = new Map(
 
 type View = 'catalog' | 'favorites' | 'themes' | 'popular'
 type Theme = 'dark' | 'light'
+type MobileColumns = 1 | 2
 
 const readInitialTheme = (): Theme =>
   document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+
+const readInitialMobileColumns = (): MobileColumns => {
+  try {
+    return window.localStorage.getItem('scbi-mobile-columns') === '2' ? 2 : 1
+  } catch {
+    return 1
+  }
+}
 
 interface InitialState {
   section: Section
@@ -1292,6 +1302,8 @@ export default function App() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [favoriteImportOpen, setFavoriteImportOpen] = useState(false)
   const [clearFavoritesOpen, setClearFavoritesOpen] = useState(false)
+  const [showScrollToFilters, setShowScrollToFilters] = useState(false)
+  const [mobileColumns, setMobileColumns] = useState<MobileColumns>(readInitialMobileColumns)
   const [visibleLimit, setVisibleLimit] = useState(PAGE_SIZE)
   const [toast, setToast] = useState<string | null>(null)
   const { favoriteIds, toggleFavorite, addFavorites, clearFavorites } = useFavorites()
@@ -1342,6 +1354,16 @@ export default function App() {
     }),
     [activeFilters, activeSection, favoriteIds, themeBuildings, view],
   )
+  const crossSection: Section = section === 'mayor' ? 'other' : 'mayor'
+  const crossSectionMatches = useMemo(() => {
+    const query = activeFilters.query.trim()
+    if (view !== 'catalog' || visibleBuildings.length > 0 || !query) return []
+
+    return filterAndSortBuildings(catalog.buildings, {
+      section: crossSection,
+      filters: { ...defaultFilters(crossSection), query, sort: 'name-asc' },
+    }).slice(0, 3)
+  }, [activeFilters.query, crossSection, view, visibleBuildings.length])
   const renderedBuildings = visibleBuildings.slice(0, visibleLimit)
   const favoriteShareText = useMemo(
     () => formatFavoriteShareText(catalog.buildings, favoriteIds),
@@ -1366,6 +1388,14 @@ export default function App() {
     document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
       ?.setAttribute('content', theme === 'dark' ? '#091615' : '#102b2c')
   }, [theme])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('scbi-mobile-columns', String(mobileColumns))
+    } catch {
+      // The selected layout still works for the current session when storage is unavailable.
+    }
+  }, [mobileColumns])
 
   useEffect(() => {
     setVisibleLimit(PAGE_SIZE)
@@ -1486,6 +1516,66 @@ export default function App() {
     }, 0)
   }
 
+  const scrollToCatalogFilters = () => {
+    const target = document.getElementById('catalog-controls')
+    if (!target) return
+
+    const stickyNav = document.querySelector<HTMLElement>('.catalog-nav-wrap')
+    const stickyNavRect = stickyNav?.getBoundingClientRect()
+    const navOccupiesTopEdge = Boolean(stickyNavRect && stickyNavRect.top <= 1)
+    const stickyOffset = (navOccupiesTopEdge ? Math.ceil(stickyNavRect?.height ?? 0) : 0) + 16
+    const targetTop = target.getBoundingClientRect().top + window.scrollY - stickyOffset
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: reduceMotion ? 'auto' : 'smooth',
+    })
+    target.focus({ preventScroll: true })
+  }
+
+  useEffect(() => {
+    let frame = 0
+
+    const updateVisibility = () => {
+      const target = document.getElementById('catalog-controls')
+      const stickyNav = document.querySelector<HTMLElement>('.catalog-nav-wrap')
+      const stickyNavRect = stickyNav?.getBoundingClientRect()
+      const stickyHeight = stickyNavRect && stickyNavRect.top <= 1 ? stickyNavRect.height : 0
+      setShowScrollToFilters(Boolean(target && target.getBoundingClientRect().bottom < stickyHeight))
+    }
+
+    const scheduleUpdate = () => {
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(updateVisibility)
+    }
+
+    updateVisibility()
+    window.addEventListener('scroll', scheduleUpdate, { passive: true })
+    window.addEventListener('resize', scheduleUpdate)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', scheduleUpdate)
+      window.removeEventListener('resize', scheduleUpdate)
+    }
+  }, [])
+
+  const returnToCatalog = () => {
+    setView('catalog')
+    window.setTimeout(scrollToCatalogFilters, 0)
+  }
+
+  const showCrossSectionMatches = () => {
+    const query = activeFilters.query.trim()
+    setFiltersBySection((current) => ({
+      ...current,
+      [crossSection]: { ...defaultFilters(crossSection), query },
+    }))
+    setSection(crossSection)
+    setView('catalog')
+    window.setTimeout(scrollToCatalogFilters, 0)
+  }
+
   const activeSectionTitle = view === 'favorites'
     ? 'Ваше избранное'
     : view === 'themes'
@@ -1562,18 +1652,32 @@ export default function App() {
         </div>
       </header>
 
-      <button
-        type="button"
-        className={`favorites-button floating-favorites${view === 'favorites' ? ' is-active' : ''}`}
-        onClick={toggleFavoritesView}
-        aria-pressed={view === 'favorites'}
-        aria-label={`Избранное ${favoriteIds.size}`}
-        title="Открыть избранное"
-      >
-        <Heart size={18} fill={view === 'favorites' ? 'currentColor' : 'none'} />
-        <span>Избранное</span>
-        <b>{favoriteIds.size}</b>
-      </button>
+      <div className="floating-actions">
+        {showScrollToFilters && (
+          <button
+            type="button"
+            className="scroll-to-filters"
+            onClick={scrollToCatalogFilters}
+            aria-label="Наверх к фильтрам каталога"
+            title="Наверх к фильтрам"
+          >
+            <ArrowUp size={18} aria-hidden="true" />
+            <span>Наверх</span>
+          </button>
+        )}
+        <button
+          type="button"
+          className={`favorites-button floating-favorites${view === 'favorites' ? ' is-active' : ''}`}
+          onClick={toggleFavoritesView}
+          aria-pressed={view === 'favorites'}
+          aria-label={`Избранное ${favoriteIds.size}`}
+          title="Открыть избранное"
+        >
+          <Heart size={18} fill={view === 'favorites' ? 'currentColor' : 'none'} />
+          <span>Избранное</span>
+          <b>{favoriteIds.size}</b>
+        </button>
+      </div>
 
       <main>
         <div className="catalog-nav-wrap">
@@ -1626,7 +1730,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="collection-bar" aria-label="Обмен избранным">
+          <div className="collection-bar collection-bar--mobile-dock" aria-label="Обмен избранным">
             <div className="collection-bar__summary">
               <span className="collection-bar__icon"><Heart size={18} fill={favoriteIds.size ? 'currentColor' : 'none'} /></span>
               <span>
@@ -1657,12 +1761,20 @@ export default function App() {
                 <Trash2 size={16} /> Очистить
               </button>
               <button type="button" className="button-primary" onClick={() => setFavoriteImportOpen(true)}>
-                <ClipboardPaste size={16} /> Вставить список
+                <ClipboardPaste size={16} />
+                <span className="favorite-action-label--full">Вставить список</span>
+                <span className="favorite-action-label--compact">Вставить</span>
               </button>
             </div>
           </div>
 
-          <div className="search-row">
+          <div
+            id="catalog-controls"
+            className="search-row"
+            role="region"
+            aria-label="Поиск и фильтры каталога"
+            tabIndex={-1}
+          >
             <label className="search-field">
               <Search size={20} aria-hidden="true" />
               <span className="sr-only">Поиск зданий</span>
@@ -1748,14 +1860,44 @@ export default function App() {
               <strong>{pluralizeBuildings(visibleBuildings.length)}</strong>
               {activeFilters.query && <span> по запросу «{activeFilters.query}»</span>}
             </p>
-            {(filterCount > 0 || activeFilters.query) && (
-              <button type="button" onClick={resetFilters}><RotateCcw size={15} /> Сбросить всё</button>
-            )}
+            <div className="results-toolbar__actions">
+              <div className="mobile-layout-toggle" role="group" aria-label="Карточек в одном ряду">
+                <button
+                  type="button"
+                  className={mobileColumns === 1 ? 'is-active' : ''}
+                  aria-pressed={mobileColumns === 1}
+                  aria-label="Показывать по одному зданию в ряду"
+                  title="По одному зданию"
+                  onClick={() => setMobileColumns(1)}
+                >
+                  <Building2 size={15} aria-hidden="true" /> 1
+                </button>
+                <button
+                  type="button"
+                  className={mobileColumns === 2 ? 'is-active' : ''}
+                  aria-pressed={mobileColumns === 2}
+                  aria-label="Показывать по два здания в ряду"
+                  title="По два здания"
+                  onClick={() => setMobileColumns(2)}
+                >
+                  <Grid2X2 size={15} aria-hidden="true" /> 2
+                </button>
+              </div>
+              {(filterCount > 0 || activeFilters.query) && (
+                <button type="button" onClick={resetFilters}><RotateCcw size={15} /> Сбросить всё</button>
+              )}
+            </div>
           </div>
+
+          {view === 'favorites' && (
+            <button type="button" className="mobile-catalog-return mobile-catalog-return--top" onClick={returnToCatalog}>
+              <ChevronLeft size={17} aria-hidden="true" /> Вернуться в каталог
+            </button>
+          )}
 
           {visibleBuildings.length > 0 ? (
             <>
-              <div className="building-grid" role="list" aria-label="Результаты каталога">
+              <div className={`building-grid building-grid--mobile-${mobileColumns}`} role="list" aria-label="Результаты каталога">
                 {renderedBuildings.map((building) => (
                   <BuildingCard
                     key={building.id}
@@ -1778,6 +1920,11 @@ export default function App() {
                   </button>
                 </div>
               )}
+              {view === 'favorites' && (
+                <button type="button" className="mobile-catalog-return mobile-catalog-return--bottom" onClick={returnToCatalog}>
+                  <ChevronLeft size={17} aria-hidden="true" /> Вернуться в каталог
+                </button>
+              )}
             </>
           ) : (
             <div className="empty-state">
@@ -1798,9 +1945,28 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <button type="button" className="button-primary" onClick={resetFilters}>
-                  Сбросить фильтры
-                </button>
+                <div className="empty-state__actions">
+                  {crossSectionMatches.length > 0 && (
+                    <button
+                      type="button"
+                      className="cross-section-match"
+                      onClick={showCrossSectionMatches}
+                      aria-label={`Показать в ${crossSection === 'other' ? 'Других зданиях' : 'Абонементе мэра'}: ${crossSectionMatches.map((building) => building.name).join(', ')}`}
+                    >
+                      <span className="cross-section-match__icon" aria-hidden="true">
+                        {crossSection === 'other' ? <MapIcon size={18} /> : <Crown size={18} />}
+                      </span>
+                      <span>
+                        <small>Найдено в «{crossSection === 'other' ? 'Других зданиях' : 'Абонементе мэра'}»</small>
+                        <strong>{crossSectionMatches.map((building) => building.name).join(' · ')}</strong>
+                      </span>
+                      <ChevronRight size={18} aria-hidden="true" />
+                    </button>
+                  )}
+                  <button type="button" className="button-primary" onClick={resetFilters}>
+                    Сбросить фильтры
+                  </button>
+                </div>
               )}
             </div>
           )}

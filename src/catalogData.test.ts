@@ -10,6 +10,7 @@ const catalogOverrides = catalogOverridesJson as Record<string, {
   additionalGalleries?: string[]
   additionalImages?: Array<{ file: string; kind: string; label: string }>
   manualImages?: Array<{ file: string; kind: string; label: string }>
+  imageSequence?: number[]
 }>
 
 const hotSpotNames = [
@@ -118,6 +119,18 @@ describe('exported catalog data', () => {
     expect(gardencourt?.originalName).toBe('Gardencourt Estate')
     expect(gardencourt?.images.map((image) => image.kind)).toEqual(['main', 'day', 'night'])
     expect(gardencourt?.images).toHaveLength(3)
+  })
+
+  it('uses the second Legendary Holiday Tree photo first and the original main photo second', () => {
+    const name = 'Легендарная праздничная елка'
+    const tree = catalog.buildings.find((building) => building.name === name)
+
+    expect(catalogOverrides[name]?.imageSequence).toEqual([2, 1])
+    expect(tree?.image).toBe('buildings/2d23626449d39b13eb9b.jpg')
+    expect(tree?.images.map((image) => image.src)).toEqual([
+      'buildings/2d23626449d39b13eb9b.jpg',
+      'buildings/4cd133ae5bf6be1fc845.jpg',
+    ])
   })
 
   it('exports every verified supplemental photo set with main, day, and night photos', () => {

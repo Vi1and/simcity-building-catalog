@@ -31,7 +31,11 @@ import {
   ZoomOut,
 } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
+import type {
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from 'react'
 import catalogJson from './data/catalog.json'
 import {
   defaultFilters,
@@ -158,7 +162,8 @@ const compactUniqueEffect = (building: Building): string | null => {
   if (!building.traits.includes('unique-effect')) return null
 
   const label = building.effectDescription?.trim() || 'Создаёт особый визуальный эффект'
-  return building.effectArea ? `${label} · ${formatEffectArea(building.effectArea)}` : label
+  const description = building.effectArea ? `${label} · ${formatEffectArea(building.effectArea)}` : label
+  return `Уникальный эффект · ${description}`
 }
 
 const sectionLabels: Record<Section, { title: string; eyebrow: string }> = {
@@ -476,6 +481,7 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
 interface CatalogSelectOption {
   value: string
   label: string
+  icon?: ReactNode
 }
 
 interface CatalogSelectProps {
@@ -595,7 +601,10 @@ function CatalogSelect({
         onClick={() => open ? closeMenu() : openMenu()}
         onKeyDown={handleTriggerKeyDown}
       >
-        <span>{selectedOption?.label ?? 'Не выбрано'}</span>
+        <span className='catalog-select__value'>
+          {selectedOption?.icon && <span className='catalog-select__option-icon'>{selectedOption.icon}</span>}
+          <span>{selectedOption?.label ?? 'Не выбрано'}</span>
+        </span>
         <span className="catalog-select__chevron" aria-hidden="true">
           <ChevronDown size={16} />
         </span>
@@ -614,7 +623,10 @@ function CatalogSelect({
               onClick={() => chooseOption(index)}
               onKeyDown={(event) => handleOptionKeyDown(event, index)}
             >
-              <span>{option.label}</span>
+              <span className='catalog-select__option-label'>
+                {option.icon && <span className='catalog-select__option-icon'>{option.icon}</span>}
+                <span>{option.label}</span>
+              </span>
               {option.value === value && <Check size={15} aria-hidden="true" />}
             </button>
           ))}
@@ -664,10 +676,11 @@ function FilterPanel({ section, view, filters, footprints, onChange }: FilterPan
           className="control-field--wide"
           value={filters.specialization}
           options={[
-            { value: 'all', label: 'Все специализации' },
+            { value: 'all', label: 'Все специализации', icon: <Shapes aria-hidden='true' /> },
             ...catalog.meta.specializations.map((specialization) => ({
               value: specialization,
               label: specialization,
+              icon: <SpecializationIcon specialization={specialization} />,
             })),
           ]}
           onChange={(specialization) => onChange({ specialization })}
@@ -901,7 +914,7 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
       key: 'specialization',
       label: 'Специализация',
       value: building.specialization,
-      icon: <MapIcon size={18} strokeWidth={1.8} />,
+      icon: <SpecializationIcon specialization={building.specialization} />,
     })
   }
   if (building.effectArea) {
@@ -1016,7 +1029,9 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
               </div>
             )}
             <span className="detail-dialog__badge">
-              {building.section === 'mayor' ? <Crown size={15} /> : <MapIcon size={15} />}
+              {building.section === 'mayor'
+                ? <Crown size={15} />
+                : <SpecializationIcon specialization={building.specialization} />}
               {building.section === 'mayor' ? 'Сезон ' + building.season : building.specialization}
             </span>
             {images.length > 1 && (
@@ -1877,7 +1892,8 @@ export default function App() {
                 className={activeFilters.specialization === 'all' ? 'is-active' : ''}
                 onClick={() => updateFilters({ specialization: 'all' })}
               >
-                Все
+                <span className='specialization-rail__icon' aria-hidden='true'><Shapes /></span>
+                <span>Все</span>
               </button>
               {catalog.meta.specializations.map((specialization) => (
                 <button
@@ -1886,7 +1902,8 @@ export default function App() {
                   className={activeFilters.specialization === specialization ? 'is-active' : ''}
                   onClick={() => updateFilters({ specialization })}
                 >
-                  {specialization}
+                  <span className='specialization-rail__icon'><SpecializationIcon specialization={specialization} /></span>
+                  <span>{specialization}</span>
                 </button>
               ))}
             </div>

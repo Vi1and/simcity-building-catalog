@@ -107,10 +107,13 @@ test.describe('Городской архив', () => {
 
     await expect(page.getByRole('heading', { name: 'Другие здания', exact: true })).toBeVisible()
     await catalog.specializationFilter.click()
-    await catalog.filters.getByRole('option', { name: 'Пляж', exact: true }).click()
+    const beachOption = catalog.filters.getByRole('option', { name: 'Пляж', exact: true })
+    await expect(beachOption.locator('[data-catalog-icon=beach]')).toBeVisible()
+    await beachOption.click()
 
     await expect(page).toHaveURL(/spec=/)
     await expect(catalog.specializationFilter).toContainText('Пляж')
+    await expect(catalog.specializationFilter.locator('[data-catalog-icon=beach]')).toBeVisible()
     await expect(catalog.cards).toHaveCount(48)
     await page.getByRole('button', { name: 'Показать ещё 12' }).click()
     await expect(catalog.cards).toHaveCount(60)
@@ -421,6 +424,11 @@ test.describe('Городской архив', () => {
       [...new Set(buttons.map((button) => Math.round(button.getBoundingClientRect().top)))],
     )
     expect(tops).toHaveLength(2)
+    await expect(page.locator('.specialization-rail [data-catalog-icon]')).toHaveCount(16)
+    await expect(
+      page.locator('.specialization-rail').getByRole('button', { name: /^космос$/i })
+        .locator('[data-catalog-icon=space]'),
+    ).toBeVisible()
   })
 
   test('копирует все избранные названия, даже скрытые поиском', async ({ page, context }) => {
@@ -585,6 +593,7 @@ test.describe('Мобильный каталог', () => {
 
     const actionButtons = collectionDock.locator('.favorite-actions button')
     await expect(actionButtons).toHaveCount(3)
+    await expect(collectionDock.getByText('Поделиться избранным', { exact: true })).toBeHidden()
     await expect(collectionDock.getByRole('button', { name: 'Перейти в избранное' })).toBeVisible()
     await expect(actionButtons.nth(0)).toHaveAccessibleName('Очистить всё избранное')
     await expect(actionButtons.nth(1)).toContainText('Вставить')
@@ -604,6 +613,8 @@ test.describe('Мобильный каталог', () => {
     const doubleButton = page.getByRole('button', { name: 'Показывать по два здания в ряду' })
     await expect(doubleButton).toHaveAttribute('aria-pressed', 'true')
     await expect(grid).toHaveClass(/building-grid--mobile-2/)
+    await expect(catalog.cards.first().locator('.building-card__context')).toHaveCSS('border-top-style', 'none')
+    await expect(catalog.cards.first().locator('.details-link')).toHaveText('Открыть')
     const firstRowTops = await catalog.cards.evaluateAll((cards) =>
       cards.slice(0, 2).map((card) => Math.round(card.getBoundingClientRect().top)),
     )
@@ -625,6 +636,7 @@ test.describe('Мобильный каталог', () => {
     await catalog.search.fill('Башня с новогодним световым шоу (2025)')
 
     const effect = catalog.cards.first().locator('.building-card__feature > span')
+    await expect(effect).toContainText('Уникальный эффект')
     await expect(effect).toContainText('Запускает фейерверк и лазерное шоу')
     const metrics = await effect.evaluate((element) => {
       const style = getComputedStyle(element)
@@ -715,21 +727,28 @@ test.describe('Планшетный каталог', () => {
 
     await expect(page.locator('.catalog-nav-wrap')).toHaveCSS('position', 'fixed')
     await expect(page.locator('.collection-bar--mobile-dock')).toHaveCSS('position', 'fixed')
+    await expect(page.locator('.collection-bar--mobile-dock').getByText('Поделиться избранным', { exact: true })).toBeHidden()
     const positions = await page.evaluate(() => {
       const navigation = document.querySelector('.catalog-nav-wrap')?.getBoundingClientRect()
       const dock = document.querySelector('.collection-bar--mobile-dock')?.getBoundingClientRect()
       return {
         navigationTop: navigation?.top ?? -1,
         dockBottom: dock?.bottom ?? -1,
+        dockLeft: dock?.left ?? -1,
+        dockWidth: dock?.width ?? -1,
+        viewportWidth: window.innerWidth,
         documentPaddingBottom: Number.parseFloat(getComputedStyle(document.querySelector('.app-shell') as HTMLElement).paddingBottom),
       }
     })
     expect(Math.abs(positions.dockBottom - positions.navigationTop)).toBeLessThanOrEqual(1)
+    expect(Math.abs(positions.dockLeft)).toBeLessThanOrEqual(1)
+    expect(Math.abs(positions.dockWidth - positions.viewportWidth)).toBeLessThanOrEqual(1)
     expect(positions.documentPaddingBottom).toBeGreaterThanOrEqual(150)
 
     const footer = page.locator('.site-footer')
-    await footer.scrollIntoViewIfNeeded()
     await page.evaluate(async () => {
+      document.documentElement.style.scrollBehavior = 'auto'
+      document.body.style.scrollBehavior = 'auto'
       for (let frame = 0; frame < 12; frame += 1) {
         window.scrollTo(0, document.documentElement.scrollHeight)
         await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))

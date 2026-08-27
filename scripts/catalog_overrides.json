@@ -22,7 +22,8 @@
     "originalName": "Secret Research Lab"
   },
   "Чайный домик": {
-    "originalName": "Tea House"
+    "originalName": "Tea House",
+    "additionalGalleries": ["Tea House"]
   },
   "Место посадки НЛО": {
     "originalName": "UFO Landing Site"
@@ -32,6 +33,244 @@
   },
   "Трасса для грузовиков": {
     "originalName": "Big Rig Route"
+  },
+  "Арктический аквариум": {
+    "originalName": "Arctic Aquarium",
+    "additionalGalleries": ["Arctic Aquarium"]
+  },
+  "Базилика Сакре-Кёр": {
+    "originalName": "Sacré-Cœur",
+    "additionalGalleries": ["Sacré-Cœur"]
+  },
+  "Большой Базар": {
+    "originalName": "Grand Souq",
+    "additionalGalleries": ["Grand Souq"]
+  },
+  "Бруклинский мост": {
+    "originalName": "Brooklyn Bridge",
+    "additionalGalleries": ["Brooklyn Bridge"]
+  },
+  "Вертикальный сад": {
+    "originalName": "Vertical Garden",
+    "additionalGalleries": ["Vertical Garden"]
+  },
+  "Веселый фуникулер": {
+    "originalName": "The Fun Funicular",
+    "additionalGalleries": ["The Fun Funicular"]
+  },
+  "Вест-Виллидж": {
+    "originalName": "West Village",
+    "additionalGalleries": ["West Village"]
+  },
+  "Галерея современного искусства": {
+    "originalName": "Galeries d'Art Nouveau",
+    "additionalGalleries": ["Galeries d'Art Nouveau"]
+  },
+  "Дворец Иолани": {
+    "originalName": "Iolani Palace",
+    "additionalGalleries": ["Iolani Palace"]
+  },
+  "Деревенский автовокзал": {
+    "originalName": "Rustic Village Bus station",
+    "additionalGalleries": ["Rustic Village Bus station"]
+  },
+  "Деревня Викингов": {
+    "originalName": "Viking Village",
+    "additionalGalleries": ["Viking Village"]
+  },
+  "Дорожка для боулинга Высшей лиги": {
+    "originalName": "Big Leagues Bowling Alley",
+    "additionalGalleries": ["Big Leagues Bowling Alley"]
+  },
+  "Замок на холме": {
+    "originalName": "Hillside Castle",
+    "additionalGalleries": ["Hillside Castle"]
+  },
+  "Карнавальные ворота": {
+    "originalName": "Carnival Gate",
+    "additionalGalleries": ["Carnival Gate"]
+  },
+  "Кладбище Пер-Лашез": {
+    "originalName": "Pére Lachaise Cemetery",
+    "additionalGalleries": ["Pére Lachaise Cemetery"]
+  },
+  "Круглая башня": {
+    "originalName": "The Round Tower",
+    "additionalGalleries": ["The Round Tower"]
+  },
+  "Кузница": {
+    "originalName": "Blacksmith Workshop",
+    "additionalGalleries": ["Blacksmith Workshop"]
+  },
+  "Курорт с горячими источниками": {
+    "originalName": "Hot Springs Resort",
+    "additionalGalleries": ["Hot Springs Resort"]
+  },
+  "Летний домик": {
+    "originalName": "Summer Cabin",
+    "additionalGalleries": ["Summer Cabin"]
+  },
+  "Магазин \"Товары для животных\"": {
+    "originalName": "Pet Supply Store",
+    "additionalGalleries": ["Pet Supply Store"]
+  },
+  "Магазин «товары для животных»": {
+    "originalName": "Pet Supply Store",
+    "additionalGalleries": ["Pet Supply Store"]
+  },
+  "Морской музей (пляж)": {
+    "originalName": "Maritime Museum",
+    "additionalGalleries": ["Maritime Museum"]
+  },
+  "Мост да Симчи": {
+    "originalName": "Bridge of da Simci",
+    "additionalGalleries": ["Bridge of da Simci"]
+  },
+  "Музей Симли": {
+    "originalName": "The Simli Museum",
+    "additionalGalleries": ["The Simli Museum"]
+  },
+  "Музей искусств": {
+    "originalName": "Museum of Art",
+    "additionalGalleries": ["Museum of Art"]
+  },
+  "Ненужная водяная мельница": {
+    "originalName": "The Useless Watermill",
+    "additionalGalleries": ["The Useless Watermill"]
+  },
+  "Отель \"Венеция\"": {
+    "originalName": "Venice Hotel",
+    "additionalGalleries": ["Venice Hotel"]
+  },
+  "Парк Сент-Джеймс": {
+    "originalName": "St. Jame's Park",
+    "additionalGalleries": ["St. Jame's Park"]
+  },
+  "Парк активного отдыха для животных": {
+    "originalName": "Pet Activity Park",
+    "additionalGalleries": ["Pet Activity Park"]
+  },
+  "Парк с оленями": {
+    "originalName": "Deer Park",
+    "additionalGalleries": ["Deer Park"]
+  },
+  "Парикмахерская": {
+    "originalName": "Hair & Clippers Salon",
+    "additionalGalleries": ["Hair & Clippers Salon"]
+  },
+  "Пирамида квезаля": {
+    "originalName": "Pyramid of Quetzal",
+    "additionalGalleries": ["Pyramid of Quetzal"]
+  },
+  "Площадь огней": {
+    "originalName": "Plaza of Lights",
+    "additionalGalleries": ["Plaza of Lights"]
+  },
+  "Посада": {
+    "originalName": "Posada",
+    "additionalGalleries": ["Posada"]
+  },
+  "Празднование года змеи": {
+    "originalName": "Year of the Snake Celebration",
+    "additionalGalleries": ["Year of the Snake Celebration"]
+  },
+  "Роща коал": {
+    "originalName": "Koala Grove",
+    "additionalGalleries": ["Koala Grove"]
+  },
+  "Салон \"Стрижка и маникюр\"": {
+    "originalName": "Hair & Clippers Salon",
+    "additionalGalleries": ["Hair & Clippers Salon"]
+  },
+  "Санаторий с приведениями": {
+    "originalName": "Haunted Sanitarium",
+    "additionalGalleries": ["Haunted Sanitarium"]
+  },
+  "Стадион \"Золотой гол\"": {
+    "originalName": "Golden Goal Stadium",
+    "additionalGalleries": ["Golden Goal Stadium"]
+  },
+  "Старый фермерский дом": {
+    "originalName": "Old Farmhouse",
+    "additionalGalleries": ["Old Farmhouse"]
+  },
+  "Страшная карусель": {
+    "originalName": "Scary Carousel",
+    "additionalGalleries": ["Scary Carousel"]
+  },
+  "Торговый центр": {
+    "originalName": "The Mall",
+    "additionalGalleries": ["The Mall"]
+  },
+  "Установка по очистке соленой воды": {
+    "originalName": "Saltwater Treatment Plant",
+    "additionalGalleries": ["Saltwater Treatment Plant"]
+  },
+  "Цветочный бутон": {
+    "originalName": "The Flower Bud",
+    "additionalGalleries": ["The Flower Bud"]
+  },
+  "Центр зеленая роща": {
+    "originalName": "Green Grove Center",
+    "additionalGalleries": ["Green Grove Center"]
+  },
+  "Центр космических полетов (запусков)": {
+    "originalName": "Space Launch Center",
+    "additionalGalleries": ["Space Launch Center"]
+  },
+  "Цех по производству сатина": {
+    "originalName": "Satin Workshop",
+    "additionalGalleries": ["Satin Workshop"]
+  },
+  "Японские дома у реки": {
+    "originalName": "Japanese Riverside Houses",
+    "additionalGalleries": ["Japanese Riverside Houses"]
+  },
+  "Зимний ресторанчик": {
+    "originalName": "Winter Brasserie",
+    "additionalImages": [
+      {"file": "winter-brasserie-day.webp", "kind": "day", "label": "Днём"},
+      {"file": "winter-brasserie-night.webp", "kind": "night", "label": "Ночью"}
+    ]
+  },
+  "Компактная библиотека": {
+    "originalName": "Lean Library",
+    "additionalImages": [
+      {"file": "lean-library-day.webp", "kind": "day", "label": "Днём"},
+      {"file": "lean-library-night.webp", "kind": "night", "label": "Ночью"}
+    ]
+  },
+  "Сельский ветряк": {
+    "originalName": "Rustic Windmill",
+    "additionalImages": [
+      {"file": "rustic-windmill-day.webp", "kind": "day", "label": "Днём"},
+      {"file": "rustic-windmill-night.webp", "kind": "night", "label": "Ночью"}
+    ]
+  },
+  "Тропические Башни": {
+    "originalName": "Rainforest Towers",
+    "additionalImages": [
+      {"file": "rainforest-towers-day.webp", "kind": "day", "label": "Днём"},
+      {"file": "rainforest-towers-night.webp", "kind": "night", "label": "Ночью"}
+    ]
+  },
+  "Удивительный амбар": {
+    "originalName": "Wonderful Barn",
+    "additionalImages": [
+      {"file": "wonderful-barn-day.webp", "kind": "day", "label": "Днём"},
+      {"file": "wonderful-barn-night.webp", "kind": "night", "label": "Ночью"}
+    ]
+  },
+  "Храм Рассвета": {
+    "originalName": "Temple of Dawn",
+    "additionalImages": [
+      {"file": "temple-of-dawn-day.webp", "kind": "day", "label": "Днём"},
+      {"file": "temple-of-dawn-night.webp", "kind": "night", "label": "Ночью"}
+    ]
+  },
+  "Поместье Гарденкорт": {
+    "originalName": "Gardencourt Estate",
+    "additionalGalleries": ["Gardencourt Estate"]
   },
   "Станция проката квадроциклов": {
     "originalName": "Quad Bike Station"

@@ -141,8 +141,6 @@ GALLERY_REJECT_MARKERS = (
     "comeback",
     "epic point",
     "in the mayor",
-    "ramadan",
-    "bayram",
     "хранилищ",
     "доступ",
     "письм",
@@ -160,12 +158,21 @@ GALLERY_REJECT_MARKERS = (
 )
 
 
+def has_gallery_reject_marker(value: str) -> bool:
+    normalized = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", value)
+    normalized = re.sub(r"[_./()-]+", " ", normalized).casefold()
+    return any(
+        re.search(rf"(?<!\w){re.escape(marker)}", normalized)
+        for marker in GALLERY_REJECT_MARKERS
+    )
+
+
 def is_building_gallery_item(item: dict[str, Any]) -> bool:
     description = " ".join(
         str(item.get(field) or "")
         for field in ("file_orig", "caption_orig", "caption_ru")
-    ).casefold()
-    return not any(marker in description for marker in GALLERY_REJECT_MARKERS)
+    )
+    return not has_gallery_reject_marker(description)
 
 
 def image_sources_for(
@@ -173,43 +180,65 @@ def image_sources_for(
     matches: dict[str, str],
     galleries: dict[str, dict[str, Any]],
     images_dir: Path,
+    additional_galleries: list[str] | None = None,
 ) -> tuple[list[tuple[Path, str]], str | None]:
     mapped = matches.get(name_ru)
     if not mapped:
         return [], None
 
-    if mapped.startswith("VK:"):
-        candidate = images_dir / legacy_image_name("VK_" + mapped[3:])
-        return ([(candidate, "main")] if candidate.exists() else []), None
-
-    gallery = galleries.get(mapped) or {}
-    main_local = clean_text(gallery.get("main_local"))
-    legacy_candidate = images_dir / legacy_image_name(mapped)
-    main_candidate = images_dir / main_local if main_local else None
-
-    # Some English Wiki entries were later pointed at a VK/Telegram screenshot.
-    # Prefer the already downloaded Wiki original whenever it is available.
-    if main_local and main_local.startswith("VK_") and legacy_candidate.exists():
-        primary = legacy_candidate
-    elif main_candidate and main_candidate.exists():
-        primary = main_candidate
-    else:
-        primary = legacy_candidate if legacy_candidate.exists() else None
-
     sources: list[tuple[Path, str]] = []
-    if primary:
-        sources.append((primary, "main"))
-    for item in gallery.get("items") or []:
-        if not is_building_gallery_item(item):
+    original_name: str | None = None
+
+    for gallery_name in [mapped, *(additional_galleries or [])]:
+        if gallery_name.startswith("VK:"):
+            candidate = images_dir / legacy_image_name("VK_" + gallery_name[3:])
+            if candidate.exists():
+                sources.append((candidate, "main"))
             continue
-        local = clean_text(item.get("local"))
-        if not local:
-            continue
-        candidate = images_dir / local
-        if candidate.exists():
-            role = str(item.get("role") or "main").lower()
-            sources.append((candidate, role if role in IMAGE_ROLE_LABELS else "main"))
-    return sources, mapped
+
+        if original_name is None:
+            original_name = gallery_name
+        gallery = galleries.get(gallery_name) or {}
+        main_local = clean_text(gallery.get("main_local"))
+        legacy_candidate = images_dir / legacy_image_name(gallery_name)
+        main_candidate = images_dir / main_local if main_local else None
+
+        # Some English Wiki entries were later pointed at a VK/Telegram screenshot.
+        # Prefer the already downloaded Wiki original whenever it is available.
+        if main_local and main_local.startswith("VK_") and legacy_candidate.exists():
+            primary = legacy_candidate
+        elif main_candidate and main_candidate.exists():
+            primary = main_candidate
+        else:
+            primary = legacy_candidate if legacy_candidate.exists() else None
+
+        if primary:
+            primary_role = "day" if sources else "main"
+            if sources:
+                matching_item = next(
+                    (
+                        item
+                        for item in gallery.get("items") or []
+                        if clean_text(item.get("local")) == primary.name
+                    ),
+                    None,
+                )
+                if matching_item:
+                    candidate_role = str(matching_item.get("role") or "main").lower()
+                    if candidate_role in IMAGE_ROLE_LABELS:
+                        primary_role = candidate_role
+            sources.append((primary, primary_role))
+        for item in gallery.get("items") or []:
+            if not is_building_gallery_item(item):
+                continue
+            local = clean_text(item.get("local"))
+            if not local:
+                continue
+            candidate = images_dir / local
+            if candidate.exists():
+                role = str(item.get("role") or "main").lower()
+                sources.append((candidate, role if role in IMAGE_ROLE_LABELS else "main"))
+    return sources, original_name
 
 
 def stable_id(section: str, identity: int | str, name: str, appearance: str) -> str:
@@ -281,6 +310,18 @@ def export_configured_images(
     return exported
 
 
+def merge_exported_images(*groups: list[dict[str, str]]) -> list[dict[str, str]]:
+    merged: list[dict[str, str]] = []
+    seen_sources: set[str] = set()
+    for group in groups:
+        for image in group:
+            if image["src"] in seen_sources:
+                continue
+            seen_sources.add(image["src"])
+            merged.append(image)
+    return merged
+
+
 def feature_traits(
     section: str,
     code: int | None,
@@ -310,8 +351,19 @@ def mayor_record(
     code = int(raw["code"])
     name = str(raw["name"]).strip()
     season = int(raw["season"])
-    source_images, original_name = image_sources_for(name, matches, galleries, images_dir)
+    source_images, matched_original_name = image_sources_for(
+        name,
+        matches,
+        galleries,
+        images_dir,
+        raw.get("additionalGalleries") or [],
+    )
     images = export_images(source_images, copied)
+    images = merge_exported_images(
+        images,
+        export_configured_images(raw.get("additionalImages") or [], copied),
+    )
+    original_name = clean_text(raw.get("originalName")) or matched_original_name
     theme = clean_text(raw.get("theme")) or clean_text(themes.get(str(season)))
     event = clean_text(raw.get("event"))
     traits = feature_traits("mayor", code, event, configured_traits)
@@ -357,8 +409,18 @@ def other_record(
         images = export_configured_images(manual_images, copied)
         matched_original_name = None
     else:
-        source_images, matched_original_name = image_sources_for(source_name, matches, galleries, images_dir)
+        source_images, matched_original_name = image_sources_for(
+            source_name,
+            matches,
+            galleries,
+            images_dir,
+            raw.get("additionalGalleries") or [],
+        )
         images = export_images(source_images, copied)
+    images = merge_exported_images(
+        images,
+        export_configured_images(raw.get("additionalImages") or [], copied),
+    )
     original_name = clean_text(raw.get("originalName")) or matched_original_name
     event = clean_text(raw.get("event"))
     traits = feature_traits("other", code, event, configured_traits, raw.get("traits"))

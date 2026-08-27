@@ -27,6 +27,20 @@ test.describe('Городской архив', () => {
     await expect(page.getByRole('dialog', { name: 'Добавить здания из списка' })).toBeVisible()
   })
 
+  test('плавно показывает оптимизированную hero-иллюстрацию', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+
+    const visual = page.locator('.hero__visual')
+    const fullImage = visual.locator('.hero__image--full')
+    await expect(visual).toBeVisible()
+    await expect(visual).toHaveClass(/is-loaded/)
+    await expect(fullImage).toHaveAttribute('width', '1217')
+    await expect(fullImage).toHaveAttribute('height', '1292')
+    await expect(fullImage).toHaveAttribute('fetchpriority', 'high')
+    expect(await fullImage.evaluate((image: HTMLImageElement) => image.currentSrc)).toContain('.webp')
+  })
+
   test('открывает Абонемент мэра первым и фильтрует сезон 71', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()
@@ -37,7 +51,9 @@ test.describe('Городской архив', () => {
     await catalog.seasonFilter.press('ArrowDown')
     const seasonList = catalog.filters.getByRole('listbox', { name: 'Сезон' })
     await expect(seasonList).toBeVisible()
+    await expect(seasonList.getByRole('option').first()).toBeFocused()
     await page.keyboard.press('ArrowDown')
+    await expect(seasonList.getByRole('option').nth(1)).toBeFocused()
     await page.keyboard.press('Enter')
 
     await expect(page).toHaveURL(/season=71/)
@@ -132,6 +148,49 @@ test.describe('Городской архив', () => {
     await expect(thumbnails.nth(1)).toHaveClass(/is-active/)
   })
 
+  test('не обрезает фото, масштабирует его и закрывает окно по фону', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.search.fill('Цветочный магазин Лепесток')
+    await catalog.cards.first().getByRole('button', { name: /^Открыть сведения:/ }).click()
+
+    const dialog = page.getByRole('dialog')
+    const stage = dialog.locator('.detail-dialog__stage')
+    const image = stage.locator('img')
+    await expect(dialog).toBeVisible()
+    expect(await image.evaluate((node) => getComputedStyle(node).objectFit)).toBe('contain')
+
+    await dialog.getByRole('button', { name: 'Увеличить фотографию' }).click()
+    await expect(stage).toHaveClass(/is-zoomed/)
+    await expect(image).toHaveAttribute('style', /scale\(1\.5\)/)
+    await expect(dialog.getByRole('button', { name: 'Сбросить масштаб' })).toBeVisible()
+    await expect(dialog.getByRole('button', { name: 'Следующее фото' })).toHaveCount(0)
+
+    await dialog.getByRole('button', { name: 'Сбросить масштаб' }).click()
+    await expect(stage).not.toHaveClass(/is-zoomed/)
+    await expect(dialog.getByRole('button', { name: 'Следующее фото' })).toBeVisible()
+
+    await page.setViewportSize({ width: 900, height: 800 })
+    const geometry = await stage.evaluate((node) => {
+      const stageBox = node.getBoundingClientRect()
+      const imageBox = node.querySelector('img')?.getBoundingClientRect()
+      return {
+        stageWidth: stageBox.width,
+        stageHeight: stageBox.height,
+        imageWidth: imageBox?.width ?? 0,
+        imageHeight: imageBox?.height ?? 0,
+      }
+    })
+    expect(geometry.imageWidth).toBeLessThanOrEqual(geometry.stageWidth - 39)
+    expect(geometry.imageHeight).toBeLessThanOrEqual(geometry.stageHeight - 39)
+
+    await dialog.getByRole('heading', { name: /Цветочный магазин/ }).click()
+    await expect(dialog).toBeVisible()
+
+    await page.mouse.click(2, 2)
+    await expect(dialog).toBeHidden()
+  })
+
   test('показывает три проверенных фото добавленного Hot Spot-здания', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()
@@ -145,16 +204,31 @@ test.describe('Городской архив', () => {
     await expect(dots).toHaveCount(3)
     await expect(dots.nth(0)).toHaveClass(/is-active/)
 
-    const cardGallery = card.locator('.building-card__image-button')
-    await cardGallery.scrollIntoViewIfNeeded()
-    const galleryBox = await cardGallery.boundingBox()
-    if (!galleryBox) throw new Error('Галерея карточки не найдена')
-    await page.mouse.move(galleryBox.x + galleryBox.width * 0.75, galleryBox.y + galleryBox.height / 2)
-    await page.mouse.down()
-    await page.mouse.move(galleryBox.x + galleryBox.width * 0.25, galleryBox.y + galleryBox.height / 2, { steps: 5 })
-    await page.mouse.up()
+    await expect(card.getByRole('button', { name: 'Предыдущее фото' })).toHaveCount(0)
+    await expect(card.getByRole('button', { name: 'Следующее фото' })).toBeVisible()
+    await card.getByRole('button', { name: 'Следующее фото' }).click()
+    await expect(dots.nth(1)).toHaveClass(/is-active/)
+    await expect(card.getByRole('button', { name: 'Предыдущее фото' })).toBeVisible()
+    await expect(card.getByRole('button', { name: 'Следующее фото' })).toBeVisible()
+
+    await card.getByRole('button', { name: 'Следующее фото' }).click()
+    await expect(dots.nth(2)).toHaveClass(/is-active/)
+    await expect(card.getByRole('button', { name: 'Следующее фото' })).toHaveCount(0)
+    await expect(card.getByRole('button', { name: 'Предыдущее фото' })).toBeVisible()
+    await card.getByRole('button', { name: 'Предыдущее фото' }).click()
     await expect(dots.nth(1)).toHaveClass(/is-active/)
     await expect(page.getByRole('dialog')).toHaveCount(0)
+
+    const imageButton = card.locator('.building-card__image-button')
+    const imageButtonBox = await imageButton.boundingBox()
+    if (!imageButtonBox) throw new Error('Фотография карточки не найдена')
+    await page.mouse.click(
+      imageButtonBox.x + imageButtonBox.width / 2,
+      imageButtonBox.y + imageButtonBox.height / 2,
+    )
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await page.getByRole('dialog').getByRole('button', { name: 'Закрыть' }).click()
+    await expect(page.getByRole('dialog')).toBeHidden()
 
     await card.getByRole('button', { name: 'Сведения · 3 фото' }).click()
 
@@ -310,7 +384,7 @@ test.describe('Городской архив', () => {
 })
 
 test.describe('Мобильный каталог', () => {
-  test.use({ viewport: { width: 390, height: 844 } })
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
 
   test('применяет сезон через мобильную панель фильтров', async ({ page }) => {
     const catalog = new CatalogPage(page)
@@ -334,6 +408,7 @@ test.describe('Мобильный каталог', () => {
     await catalog.open()
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await expect(page.locator('.hero__visual')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Вставить список зданий в избранное' })).toBeInViewport()
     const navButtons = page.locator('.catalog-nav > button')
     await expect(navButtons).toHaveCount(3)
@@ -360,6 +435,31 @@ test.describe('Мобильный каталог', () => {
     await stage.scrollIntoViewIfNeeded()
     const stageBox = await stage.boundingBox()
     if (!stageBox) throw new Error('Область фотографии не найдена')
+    const centerX = stageBox.x + stageBox.width / 2
+    const centerY = stageBox.y + stageBox.height / 2
+    const cdp = await page.context().newCDPSession(page)
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [
+        { x: centerX - 24, y: centerY, id: 1, radiusX: 2, radiusY: 2, force: 1 },
+        { x: centerX + 24, y: centerY, id: 2, radiusX: 2, radiusY: 2, force: 1 },
+      ],
+    })
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [
+        { x: centerX - 58, y: centerY, id: 1, radiusX: 2, radiusY: 2, force: 1 },
+        { x: centerX + 58, y: centerY, id: 2, radiusX: 2, radiusY: 2, force: 1 },
+      ],
+    })
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await expect(stage).toHaveClass(/is-zoomed/)
+    await expect(dialog.getByRole('button', { name: 'Сбросить масштаб' })).toBeVisible()
+    await expect(dialog.getByRole('button', { name: 'Следующее фото' })).toHaveCount(0)
+    await dialog.getByRole('button', { name: 'Сбросить масштаб' }).click()
+    await expect(stage).not.toHaveClass(/is-zoomed/)
+    await expect(dialog.getByRole('button', { name: 'Следующее фото' })).toBeVisible()
+
     await page.mouse.move(stageBox.x + stageBox.width * 0.75, stageBox.y + stageBox.height / 2)
     await page.mouse.down()
     await page.mouse.move(stageBox.x + stageBox.width * 0.25, stageBox.y + stageBox.height / 2, { steps: 5 })

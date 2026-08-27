@@ -25,6 +25,8 @@ import {
   Trash2,
   Users,
   X,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
@@ -138,6 +140,57 @@ const featureSummary = (building: Building): string => {
   return 'Особый объект'
 }
 
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches)
+
+  useEffect(() => {
+    const media = window.matchMedia(query)
+    const update = () => setMatches(media.matches)
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [query])
+
+  return matches
+}
+
+function HeroVisual() {
+  const shouldRender = useMediaQuery('(min-width: 851px)')
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    if (!shouldRender) setReady(false)
+  }, [shouldRender])
+
+  if (!shouldRender) return null
+
+  return (
+    <div className={`hero__visual${ready ? ' is-loaded' : ''}`} aria-hidden="true">
+      <img
+        className="hero__image hero__image--placeholder"
+        src="hero-city-v1-placeholder.webp"
+        alt=""
+        width="1217"
+        height="1292"
+        decoding="async"
+      />
+      <img
+        className="hero__image hero__image--full"
+        src="hero-city-v1-640.webp"
+        srcSet="hero-city-v1-640.webp 640w, hero-city-v1.webp 1217w"
+        sizes="(max-width: 1160px) 500px, 610px"
+        alt=""
+        width="1217"
+        height="1292"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+        onLoad={() => setReady(true)}
+      />
+    </div>
+  )
+}
+
 function FootprintMark({ building }: { building: Building }) {
   return (
     <span className="meta-mark meta-mark--grid" aria-hidden="true">
@@ -185,13 +238,15 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
   const pointerStartX = useRef<number | null>(null)
   const suppressOpen = useRef(false)
   const activeImage = images[activeImageIndex] ?? images[0]
+  const canShowPrevious = activeImageIndex > 0
+  const canShowNext = activeImageIndex < images.length - 1
   const category = building.section === 'mayor'
     ? `Сезон ${building.season ?? '—'}`
     : building.specialization ?? 'Другое'
 
   const showRelativeImage = (offset: number) => {
     if (images.length < 2) return
-    setActiveImageIndex((current) => (current + offset + images.length) % images.length)
+    setActiveImageIndex((current) => Math.min(images.length - 1, Math.max(0, current + offset)))
   }
 
   const beginSwipe = (event: ReactPointerEvent<HTMLButtonElement>) => {
@@ -255,6 +310,26 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
             </span>
           )}
         </button>
+        {canShowPrevious && (
+          <button
+            type="button"
+            className="building-card__gallery-arrow building-card__gallery-arrow--previous"
+            aria-label="Предыдущее фото"
+            onClick={() => showRelativeImage(-1)}
+          >
+            <span><ChevronLeft size={15} /></span>
+          </button>
+        )}
+        {canShowNext && (
+          <button
+            type="button"
+            className="building-card__gallery-arrow building-card__gallery-arrow--next"
+            aria-label="Следующее фото"
+            onClick={() => showRelativeImage(1)}
+          >
+            <span><ChevronRight size={15} /></span>
+          </button>
+        )}
         <span className="building-card__index">{category}</span>
         {images.length > 0 && (
           <span
@@ -581,8 +656,15 @@ interface DetailDialogProps {
 
 function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const imageRef = useRef<HTMLImageElement>(null)
   const pointerStartX = useRef<number | null>(null)
+  const activePointers = useRef(new globalThis.Map<number, { x: number; y: number }>())
+  const dragStart = useRef<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null)
+  const pinchStart = useRef<{ distance: number; zoom: number } | null>(null)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     const dialog = ref.current
@@ -593,7 +675,17 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
 
   useEffect(() => {
     setActiveImageIndex(0)
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
   }, [building?.id])
+
+  useEffect(() => {
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
+    activePointers.current.clear()
+    dragStart.current = null
+    pinchStart.current = null
+  }, [activeImageIndex])
 
   if (!building) return <dialog ref={ref} className="detail-dialog" aria-labelledby="building-detail-heading" onClose={onClose} />
 
@@ -603,13 +695,77 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
       ? [{ src: building.image, kind: 'main' as const, label: 'Основное фото' }]
       : []
   const activeImage = images[activeImageIndex] ?? images[0]
+  const canShowPrevious = activeImageIndex > 0
+  const canShowNext = activeImageIndex < images.length - 1
   const showRelativeImage = (offset: number) => {
-    setActiveImageIndex((current) => (current + offset + images.length) % images.length)
+    setActiveImageIndex((current) => Math.min(images.length - 1, Math.max(0, current + offset)))
   }
+
+  const clampPan = (x: number, y: number, scale = zoom) => {
+    const stage = stageRef.current
+    const image = imageRef.current
+    if (!stage || !image || scale <= 1) return { x: 0, y: 0 }
+
+    const style = getComputedStyle(stage)
+    const availableWidth = stage.clientWidth
+      - Number.parseFloat(style.paddingLeft)
+      - Number.parseFloat(style.paddingRight)
+    const availableHeight = stage.clientHeight
+      - Number.parseFloat(style.paddingTop)
+      - Number.parseFloat(style.paddingBottom)
+    const naturalWidth = image.naturalWidth || availableWidth
+    const naturalHeight = image.naturalHeight || availableHeight
+    const containScale = Math.min(availableWidth / naturalWidth, availableHeight / naturalHeight)
+    const renderedWidth = naturalWidth * containScale
+    const renderedHeight = naturalHeight * containScale
+    const maxX = Math.max(0, (renderedWidth * scale - availableWidth) / 2)
+    const maxY = Math.max(0, (renderedHeight * scale - availableHeight) / 2)
+    return {
+      x: Math.min(maxX, Math.max(-maxX, x)),
+      y: Math.min(maxY, Math.max(-maxY, y)),
+    }
+  }
+
+  const applyZoom = (value: number) => {
+    const nextZoom = Math.min(4, Math.max(1, Math.round(value * 10) / 10))
+    setZoom(nextZoom)
+    setPan((current) => clampPan(current.x, current.y, nextZoom))
+  }
+
+  const resetZoom = () => {
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
+  }
+
   const beginSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (images.length < 2 || (event.target as HTMLElement).closest('button')) return
-    pointerStartX.current = event.clientX
+    if ((event.target as HTMLElement).closest('button')) return
+    activePointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
     event.currentTarget.setPointerCapture(event.pointerId)
+
+    const pointers = [...activePointers.current.values()]
+    if (pointers.length >= 2) {
+      pinchStart.current = {
+        distance: Math.hypot(pointers[0].x - pointers[1].x, pointers[0].y - pointers[1].y),
+        zoom,
+      }
+      pointerStartX.current = null
+      dragStart.current = null
+      return
+    }
+
+    if (zoom > 1) {
+      dragStart.current = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        panX: pan.x,
+        panY: pan.y,
+      }
+      return
+    }
+
+    if (images.length < 2) return
+    pointerStartX.current = event.clientX
   }
 
   const completeSwipe = (clientX: number) => {
@@ -620,9 +776,43 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
     showRelativeImage(distance > 0 ? 1 : -1)
   }
 
+  const movePointer = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!activePointers.current.has(event.pointerId)) return
+
+    activePointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
+    const pointers = [...activePointers.current.values()]
+    if (pointers.length >= 2 && pinchStart.current) {
+      const distance = Math.hypot(pointers[0].x - pointers[1].x, pointers[0].y - pointers[1].y)
+      applyZoom(pinchStart.current.zoom * distance / Math.max(1, pinchStart.current.distance))
+      return
+    }
+
+    if (zoom <= 1) {
+      completeSwipe(event.clientX)
+      return
+    }
+
+    if (dragStart.current?.pointerId === event.pointerId) {
+      setPan(clampPan(
+        dragStart.current.panX + event.clientX - dragStart.current.x,
+        dragStart.current.panY + event.clientY - dragStart.current.y,
+      ))
+    }
+  }
+
   const endSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
-    completeSwipe(event.clientX)
+    if (zoom <= 1) completeSwipe(event.clientX)
     pointerStartX.current = null
+    activePointers.current.delete(event.pointerId)
+    if (activePointers.current.size < 2) pinchStart.current = null
+    if (dragStart.current?.pointerId === event.pointerId) dragStart.current = null
+  }
+
+  const cancelPointer = (event: ReactPointerEvent<HTMLDivElement>) => {
+    pointerStartX.current = null
+    activePointers.current.delete(event.pointerId)
+    if (activePointers.current.size < 2) pinchStart.current = null
+    if (dragStart.current?.pointerId === event.pointerId) dragStart.current = null
   }
 
   const highlights = [
@@ -685,27 +875,75 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
   if (building.aliases.length) facts.push(['Другие названия', building.aliases.join(' · ')])
 
   return (
-    <dialog ref={ref} className="detail-dialog" aria-labelledby="building-detail-heading" onClose={onClose} onCancel={onClose}>
+    <dialog
+      ref={ref}
+      className="detail-dialog"
+      aria-labelledby="building-detail-heading"
+      onClose={onClose}
+      onCancel={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) ref.current?.close()
+      }}
+    >
       <div className="detail-dialog__shell">
         <button type="button" className="dialog-close" aria-label="Закрыть" onClick={() => ref.current?.close()}>
           <X size={21} />
         </button>
         <div className="detail-dialog__media">
           <div
-            className="detail-dialog__stage"
+            ref={stageRef}
+            className={`detail-dialog__stage${zoom > 1 ? ' is-zoomed' : ''}`}
             onPointerDown={beginSwipe}
-            onPointerMove={(event) => completeSwipe(event.clientX)}
+            onPointerMove={movePointer}
             onPointerUp={endSwipe}
-            onPointerCancel={() => { pointerStartX.current = null }}
+            onPointerCancel={cancelPointer}
+            onDoubleClick={(event) => {
+              if (!(event.target as HTMLElement).closest('button')) applyZoom(zoom > 1 ? 1 : 2)
+            }}
+            onWheel={(event) => {
+              if (!event.ctrlKey && !event.metaKey) return
+              event.preventDefault()
+              applyZoom(zoom + (event.deltaY < 0 ? 0.5 : -0.5))
+            }}
           >
             {activeImage ? (
               <img
+                ref={imageRef}
                 src={activeImage.src}
                 alt={building.name + ' — ' + activeImage.label}
                 draggable={false}
+                style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }}
               />
             ) : (
               <Building2 size={72} />
+            )}
+            {activeImage && (
+              <div className="detail-dialog__zoom-controls" role="group" aria-label="Масштаб фотографии">
+                <button
+                  type="button"
+                  aria-label="Уменьшить фотографию"
+                  title="Уменьшить"
+                  disabled={zoom <= 1}
+                  onClick={() => applyZoom(zoom - 0.5)}
+                >
+                  <ZoomOut size={16} />
+                </button>
+                <span aria-live="polite">{Math.round(zoom * 100)}%</span>
+                <button
+                  type="button"
+                  aria-label="Увеличить фотографию"
+                  title="Увеличить"
+                  disabled={zoom >= 4}
+                  onClick={() => applyZoom(zoom + 0.5)}
+                >
+                  <ZoomIn size={16} />
+                </button>
+                {zoom > 1 && (
+                  <button type="button" aria-label="Сбросить масштаб" title="Сбросить масштаб" onClick={resetZoom}>
+                    <RotateCcw size={15} />
+                  </button>
+                )}
+              </div>
             )}
             <span className="detail-dialog__badge">
               {building.section === 'mayor' ? <Crown size={15} /> : <Map size={15} />}
@@ -713,22 +951,26 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
             </span>
             {images.length > 1 && (
               <>
-                <button
-                  type="button"
-                  className="gallery-arrow gallery-arrow--previous"
-                  aria-label="Предыдущее фото"
-                  onClick={() => showRelativeImage(-1)}
-                >
-                  <ChevronLeft size={22} />
-                </button>
-                <button
-                  type="button"
-                  className="gallery-arrow gallery-arrow--next"
-                  aria-label="Следующее фото"
-                  onClick={() => showRelativeImage(1)}
-                >
-                  <ChevronRight size={22} />
-                </button>
+                {zoom === 1 && canShowPrevious && (
+                  <button
+                    type="button"
+                    className="gallery-arrow gallery-arrow--previous"
+                    aria-label="Предыдущее фото"
+                    onClick={() => showRelativeImage(-1)}
+                  >
+                    <ChevronLeft size={22} />
+                  </button>
+                )}
+                {zoom === 1 && canShowNext && (
+                  <button
+                    type="button"
+                    className="gallery-arrow gallery-arrow--next"
+                    aria-label="Следующее фото"
+                    onClick={() => showRelativeImage(1)}
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+                )}
                 <span className="detail-dialog__counter" aria-live="polite">
                   {formatPhotoCount(images.length)}
                 </span>
@@ -1265,9 +1507,7 @@ export default function App() {
               <div><strong>{catalog.meta.counts.mayor + catalog.meta.counts.other}</strong><span>Всего карточек</span></div>
             </div>
           </div>
-          <div className="hero__visual" aria-hidden="true">
-            <img src="hero-city-v1.png" alt="" />
-          </div>
+          <HeroVisual />
         </div>
       </header>
 

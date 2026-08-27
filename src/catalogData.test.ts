@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest'
+import catalogOverridesJson from '../scripts/catalog_overrides.json'
 import catalogJson from './data/catalog.json'
 import { formatFavoriteShareText, matchFavoriteNames } from './favoriteSharing'
 import type { Building, CatalogData } from './types'
 
 const catalog = catalogJson as CatalogData
+const catalogOverrides = catalogOverridesJson as Record<string, {
+  originalName?: string
+  additionalGalleries?: string[]
+  additionalImages?: Array<{ file: string; kind: string; label: string }>
+}>
 
 const hotSpotNames = [
   'Павильон для маджонга',
@@ -77,6 +83,42 @@ describe('exported catalog data', () => {
       'Днём · уровень 1',
       'Ночью · уровень 1',
     ])
+  })
+
+  it('merges the verified Gardencourt Estate gallery with its catalog photo', () => {
+    const gardencourt = catalog.buildings.find((building) => building.code === 2080167789)
+    expect(gardencourt?.name).toBe('Поместье Гарденкорт')
+    expect(gardencourt?.originalName).toBe('Gardencourt Estate')
+    expect(gardencourt?.images.map((image) => image.kind)).toEqual(['main', 'day', 'night'])
+    expect(gardencourt?.images).toHaveLength(3)
+  })
+
+  it('exports every verified supplemental photo set with main, day, and night photos', () => {
+    const supplementalGalleries = Object.entries(catalogOverrides)
+      .filter(([, override]) => override.additionalGalleries?.length)
+    const supplementalImages = Object.entries(catalogOverrides)
+      .filter(([, override]) => override.additionalImages?.length)
+    const supplementalPhotoSets = [...supplementalGalleries, ...supplementalImages]
+
+    expect(supplementalGalleries).toHaveLength(50)
+    expect(supplementalImages).toHaveLength(6)
+    for (const [name, override] of supplementalPhotoSets) {
+      const buildings = catalog.buildings.filter((building) => building.name === name)
+      expect(buildings.length, name).toBeGreaterThan(0)
+
+      for (const building of buildings) {
+        expect(building.originalName, name).toBe(override.originalName)
+        expect(new Set(building.images.map((image) => image.kind)), name)
+          .toEqual(new Set(['main', 'day', 'night']))
+      }
+    }
+  })
+
+  it('does not mistake building-name fragments for rejected gallery markers', () => {
+    const bridge = catalog.buildings.find((building) => building.originalName === 'Bridge Classico')
+    const waterpark = catalog.buildings.find((building) => building.originalName === 'Rainforest Waterpark')
+    expect(bridge?.images.some((image) => image.kind === 'night')).toBe(true)
+    expect(waterpark?.images.some((image) => image.kind === 'night')).toBe(true)
   })
 
   it('preserves different favorite cards even when their game codes collide', () => {

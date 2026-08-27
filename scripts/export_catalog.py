@@ -322,6 +322,38 @@ def merge_exported_images(*groups: list[dict[str, str]]) -> list[dict[str, str]]
     return merged
 
 
+def merge_record_configs(
+    record: dict[str, Any],
+    *configs: dict[str, Any] | None,
+) -> dict[str, Any]:
+    merged = dict(record)
+    gallery_names: list[str] = list(record.get("additionalGalleries") or [])
+    configured_images: list[dict[str, Any]] = list(record.get("additionalImages") or [])
+    for config in configs:
+        if not config:
+            continue
+        merged.update(
+            {
+                key: value
+                for key, value in config.items()
+                if key not in {"additionalGalleries", "additionalImages"}
+            }
+        )
+        gallery_names.extend(config.get("additionalGalleries") or [])
+        configured_images.extend(config.get("additionalImages") or [])
+    if gallery_names:
+        merged["additionalGalleries"] = list(dict.fromkeys(gallery_names))
+    if configured_images:
+        seen_images: set[str] = set()
+        merged["additionalImages"] = []
+        for image in configured_images:
+            signature = json.dumps(image, ensure_ascii=False, sort_keys=True)
+            if signature not in seen_images:
+                seen_images.add(signature)
+                merged["additionalImages"].append(image)
+    return merged
+
+
 def feature_traits(
     section: str,
     code: int | None,
@@ -476,6 +508,12 @@ def main() -> None:
     gallery_data = load_json(scripts_dir / "galleries_v3.json").get("galleries", {})
     override_path = Path(__file__).with_name("catalog_overrides.json")
     overrides = load_json(override_path) if override_path.exists() else {}
+    mayor_gallery_path = Path(__file__).with_name("mayor_fandom_images.json")
+    mayor_gallery_overrides = (
+        load_json(mayor_gallery_path).get("buildings", {})
+        if mayor_gallery_path.exists()
+        else {}
+    )
     featured_path = Path(__file__).with_name("featured_buildings.json")
     featured = load_json(featured_path) if featured_path.exists() else {}
     manual_buildings_path = Path(__file__).with_name("manual_buildings.json")
@@ -488,7 +526,11 @@ def main() -> None:
     hidden = {hidden_raw} if isinstance(hidden_raw, str) else set(hidden_raw)
 
     mayor_source = [
-        {**record, **overrides.get(record.get("name"), {})}
+        merge_record_configs(
+            record,
+            mayor_gallery_overrides.get(record.get("name")),
+            overrides.get(record.get("name")),
+        )
         for record in mayor_data["buildings"]
         if record.get("code") is not None
     ]

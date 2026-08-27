@@ -77,6 +77,7 @@ export interface SectionFilters {
   query: string
   season: string
   specialization: string
+  theme: string
   footprint: string
   featuredOnly: boolean
   sort: SortMode

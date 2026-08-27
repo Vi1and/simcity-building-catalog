@@ -14,11 +14,12 @@ import {
   Heart,
   Info,
   Images,
-  Map,
+  Map as MapIcon,
   Moon,
   RotateCcw,
   Scan,
   Search,
+  Shapes,
   SlidersHorizontal,
   Sparkles,
   Sun,
@@ -41,14 +42,22 @@ import {
 } from './catalog'
 import type { Building, CatalogData, Section, SectionFilters, SortMode } from './types'
 import { formatFavoriteShareText, matchFavoriteNames } from './favoriteSharing'
+import { buildingMatchesTheme, buildingThemeIds, catalogThemes, findCatalogTheme } from './themes'
 import { useFavorites } from './useFavorites'
 
 const catalog = catalogJson as CatalogData
 const ALL_SORT_MODES = Object.keys(sortLabels) as SortMode[]
 const PAGE_SIZE = 48
 const POPULAR_BUILDINGS_COUNT = catalog.buildings.filter((building) => building.traits.includes('popular')).length
+const THEMED_BUILDINGS_COUNT = catalog.buildings.filter((building) => buildingThemeIds(building).length > 0).length
+const THEME_COUNTS: ReadonlyMap<string, number> = new Map(
+  catalogThemes.map((theme) => [
+    theme.id,
+    catalog.buildings.filter((building) => buildingMatchesTheme(building, theme)).length,
+  ]),
+)
 
-type View = 'catalog' | 'favorites' | 'popular'
+type View = 'catalog' | 'favorites' | 'themes' | 'popular'
 type Theme = 'dark' | 'light'
 
 const readInitialTheme = (): Theme =>
@@ -59,6 +68,7 @@ interface InitialState {
   view: View
   filters: Record<Section, SectionFilters>
   favoriteFilters: SectionFilters
+  themedFilters: SectionFilters
   popularFilters: SectionFilters
 }
 
@@ -69,7 +79,7 @@ const readInitialState = (): InitialState => {
   const params = new URLSearchParams(window.location.search)
   const section: Section = params.get('section') === 'other' ? 'other' : 'mayor'
   const requestedView = params.get('view')
-  const view: View = requestedView === 'favorites' || requestedView === 'popular'
+  const view: View = requestedView === 'favorites' || requestedView === 'themes' || requestedView === 'popular'
     ? requestedView
     : 'catalog'
   const current = defaultFilters(section)
@@ -81,6 +91,7 @@ const readInitialState = (): InitialState => {
   if (validSort(params.get('sort'))) current.sort = params.get('sort') as SortMode
 
   const favoriteFilters = { ...defaultFilters('other'), sort: 'name-asc' as SortMode }
+  const themedFilters = { ...defaultFilters('other'), sort: 'boost-desc' as SortMode }
   const popularFilters = { ...defaultFilters('other'), sort: 'boost-desc' as SortMode }
   if (view === 'favorites') {
     favoriteFilters.query = params.get('q') ?? ''
@@ -93,6 +104,14 @@ const readInitialState = (): InitialState => {
     popularFilters.footprint = params.get('size') ?? 'all'
     if (validSort(params.get('sort'))) popularFilters.sort = params.get('sort') as SortMode
   }
+  if (view === 'themes') {
+    themedFilters.query = params.get('q') ?? ''
+    themedFilters.footprint = params.get('size') ?? 'all'
+    themedFilters.featuredOnly = params.get('rare') === '1'
+    themedFilters.specialization = params.get('spec') ?? 'all'
+    themedFilters.theme = findCatalogTheme(params.get('theme') ?? '')?.id ?? 'all'
+    if (validSort(params.get('sort'))) themedFilters.sort = params.get('sort') as SortMode
+  }
 
   return {
     section,
@@ -102,6 +121,7 @@ const readInitialState = (): InitialState => {
       other: section === 'other' ? current : defaultFilters('other'),
     },
     favoriteFilters,
+    themedFilters,
     popularFilters,
   }
 }
@@ -568,7 +588,7 @@ interface FilterPanelProps {
 function FilterPanel({ section, view, filters, footprints, onChange }: FilterPanelProps) {
   const sortOptions: SortMode[] = view === 'favorites'
     ? ['name-asc', 'boost-desc', 'boost-asc', 'season-desc', 'season-asc']
-    : view === 'popular'
+    : view === 'popular' || view === 'themes'
       ? ['boost-desc', 'boost-asc', 'released-desc', 'released-asc', 'name-asc']
     : section === 'mayor'
       ? ['season-desc', 'season-asc', 'boost-desc', 'boost-asc', 'name-asc']
@@ -591,7 +611,7 @@ function FilterPanel({ section, view, filters, footprints, onChange }: FilterPan
         />
       )}
 
-      {view === 'catalog' && section === 'other' && (
+      {((view === 'catalog' && section === 'other') || view === 'themes') && (
         <CatalogSelect
           label="Специализация"
           className="control-field--wide"
@@ -834,7 +854,7 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
       key: 'specialization',
       label: 'Специализация',
       value: building.specialization,
-      icon: <Map size={18} strokeWidth={1.8} />,
+      icon: <MapIcon size={18} strokeWidth={1.8} />,
     })
   }
   if (building.effectArea) {
@@ -946,7 +966,7 @@ function DetailDialog({ building, favorite, onFavorite, onClose }: DetailDialogP
               </div>
             )}
             <span className="detail-dialog__badge">
-              {building.section === 'mayor' ? <Crown size={15} /> : <Map size={15} />}
+              {building.section === 'mayor' ? <Crown size={15} /> : <MapIcon size={15} />}
               {building.section === 'mayor' ? 'Сезон ' + building.season : building.specialization}
             </span>
             {images.length > 1 && (
@@ -1266,6 +1286,7 @@ export default function App() {
   const [view, setView] = useState<View>(initialState.view)
   const [filtersBySection, setFiltersBySection] = useState(initialState.filters)
   const [favoriteFilters, setFavoriteFilters] = useState(initialState.favoriteFilters)
+  const [themedFilters, setThemedFilters] = useState(initialState.themedFilters)
   const [popularFilters, setPopularFilters] = useState(initialState.popularFilters)
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
@@ -1277,18 +1298,29 @@ export default function App() {
 
   const activeFilters = view === 'favorites'
     ? favoriteFilters
+    : view === 'themes'
+      ? themedFilters
     : view === 'popular'
       ? popularFilters
       : filtersBySection[section]
   const activeSection: Section | 'all' = view === 'catalog' ? section : 'all'
+  const activeTheme = findCatalogTheme(themedFilters.theme)
+  const themeBuildings = useMemo(
+    () => view !== 'themes'
+      ? catalog.buildings
+      : catalog.buildings.filter((building) => activeTheme
+        ? buildingMatchesTheme(building, activeTheme)
+        : buildingThemeIds(building).length > 0),
+    [activeTheme, view],
+  )
 
   const availableBuildings = useMemo(
-    () => catalog.buildings.filter(
+    () => themeBuildings.filter(
       (building) =>
         (activeSection === 'all' || building.section === activeSection) &&
         (view !== 'popular' || building.traits.includes('popular')),
     ),
-    [activeSection, view],
+    [activeSection, themeBuildings, view],
   )
   const footprints = useMemo(
     () => [...new Set(availableBuildings.map(footprintKey).filter((key) => key !== 'unknown'))]
@@ -1301,14 +1333,14 @@ export default function App() {
   )
 
   const visibleBuildings = useMemo(
-    () => filterAndSortBuildings(catalog.buildings, {
+    () => filterAndSortBuildings(themeBuildings, {
       section: activeSection,
       filters: activeFilters,
       favoriteIds,
       favoritesOnly: view === 'favorites',
       popularOnly: view === 'popular',
     }),
-    [activeFilters, activeSection, favoriteIds, view],
+    [activeFilters, activeSection, favoriteIds, themeBuildings, view],
   )
   const renderedBuildings = visibleBuildings.slice(0, visibleLimit)
   const favoriteShareText = useMemo(
@@ -1319,6 +1351,7 @@ export default function App() {
   const filterCount = [
     activeFilters.season !== 'all',
     activeFilters.specialization !== 'all',
+    activeFilters.theme !== 'all',
     activeFilters.footprint !== 'all',
     activeFilters.featuredOnly,
   ].filter(Boolean).length
@@ -1340,16 +1373,18 @@ export default function App() {
 
   useEffect(() => {
     const params = new URLSearchParams()
-    if (view === 'favorites' || view === 'popular') params.set('view', view)
+    if (view === 'favorites' || view === 'themes' || view === 'popular') params.set('view', view)
     else params.set('section', section)
     if (activeFilters.query.trim()) params.set('q', activeFilters.query.trim())
     if (activeFilters.footprint !== 'all') params.set('size', activeFilters.footprint)
     if (activeFilters.featuredOnly) params.set('rare', '1')
     if (view === 'catalog' && section === 'mayor' && activeFilters.season !== 'all') params.set('season', activeFilters.season)
     if (view === 'catalog' && section === 'other' && activeFilters.specialization !== 'all') params.set('spec', activeFilters.specialization)
+    if (view === 'themes' && activeFilters.specialization !== 'all') params.set('spec', activeFilters.specialization)
+    if (view === 'themes' && activeFilters.theme !== 'all') params.set('theme', activeFilters.theme)
     const defaultSort = view === 'favorites'
       ? 'name-asc'
-      : view === 'popular'
+      : view === 'popular' || view === 'themes'
         ? 'boost-desc'
         : defaultFilters(section).sort
     if (activeFilters.sort !== defaultSort) params.set('sort', activeFilters.sort)
@@ -1366,6 +1401,8 @@ export default function App() {
   const updateFilters = (patch: Partial<SectionFilters>) => {
     if (view === 'favorites') {
       setFavoriteFilters((current) => ({ ...current, ...patch }))
+    } else if (view === 'themes') {
+      setThemedFilters((current) => ({ ...current, ...patch }))
     } else if (view === 'popular') {
       setPopularFilters((current) => ({ ...current, ...patch }))
     } else {
@@ -1379,6 +1416,8 @@ export default function App() {
   const resetFilters = () => {
     if (view === 'favorites') {
       setFavoriteFilters({ ...defaultFilters('other'), sort: 'name-asc' })
+    } else if (view === 'themes') {
+      setThemedFilters({ ...defaultFilters('other'), sort: 'boost-desc' })
     } else if (view === 'popular') {
       setPopularFilters({ ...defaultFilters('other'), sort: 'boost-desc' })
     } else {
@@ -1436,6 +1475,10 @@ export default function App() {
     setView('popular')
   }
 
+  const showThemes = () => {
+    setView('themes')
+  }
+
   const toggleFavoritesView = () => {
     setView((current) => current === 'favorites' ? 'catalog' : 'favorites')
     window.setTimeout(() => {
@@ -1445,11 +1488,15 @@ export default function App() {
 
   const activeSectionTitle = view === 'favorites'
     ? 'Ваше избранное'
+    : view === 'themes'
+      ? activeTheme?.label ?? 'Тематические подборки'
     : view === 'popular'
       ? 'Популярные здания'
       : sectionLabels[section].title
   const activeSectionDescription = view === 'favorites'
     ? 'Копируйте список названий или вставляйте подборку другого человека.'
+    : view === 'themes'
+      ? activeTheme?.description ?? 'Здания из всего каталога, собранные по регионам, архитектуре и настроению.'
     : view === 'popular'
       ? 'Объекты, отмеченные как популярные в актуальной таблице каталога.'
       : section === 'mayor'
@@ -1457,6 +1504,10 @@ export default function App() {
         : 'Пляжи, горы, парки, монументы и другие особые объекты.'
   const activeSectionKicker = view === 'favorites'
     ? 'Личная коллекция'
+    : view === 'themes'
+      ? activeTheme
+        ? `${activeTheme.icon} ${THEME_COUNTS.get(activeTheme.id) ?? 0} объектов в подборке`
+        : `${catalogThemes.length} тематик · ${THEMED_BUILDINGS_COUNT} объектов`
     : view === 'popular'
       ? POPULAR_BUILDINGS_COUNT + ' популярных объектов'
       : sectionLabels[section].eyebrow
@@ -1542,8 +1593,17 @@ export default function App() {
               onClick={() => showSection('other')}
               aria-current={view === 'catalog' && section === 'other' ? 'page' : undefined}
             >
-              <span className="catalog-nav__icon"><Map size={19} /></span>
+              <span className="catalog-nav__icon"><MapIcon size={19} /></span>
               <span><strong>Другие здания</strong><small>{catalog.meta.counts.other} зданий · 16 категорий</small></span>
+            </button>
+            <button
+              type="button"
+              className={view === 'themes' ? 'is-active' : ''}
+              onClick={showThemes}
+              aria-current={view === 'themes' ? 'page' : undefined}
+            >
+              <span className="catalog-nav__icon"><Shapes size={19} /></span>
+              <span><strong>Тематические</strong><small>{catalogThemes.length} тем · {THEMED_BUILDINGS_COUNT} объектов</small></span>
             </button>
             <button
               type="button"
@@ -1651,6 +1711,33 @@ export default function App() {
                   onClick={() => updateFilters({ specialization })}
                 >
                   {specialization}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {view === 'themes' && (
+            <div className="theme-rail" aria-label="Выбор тематики">
+              <button
+                type="button"
+                className={activeFilters.theme === 'all' ? 'is-active' : ''}
+                onClick={() => updateFilters({ theme: 'all' })}
+                aria-pressed={activeFilters.theme === 'all'}
+              >
+                <span className="theme-rail__icon" aria-hidden="true">✦</span>
+                <span><strong>Все темы</strong><small>{THEMED_BUILDINGS_COUNT} объектов</small></span>
+              </button>
+              {catalogThemes.map((theme) => (
+                <button
+                  type="button"
+                  key={theme.id}
+                  className={activeFilters.theme === theme.id ? 'is-active' : ''}
+                  onClick={() => updateFilters({ theme: theme.id })}
+                  aria-pressed={activeFilters.theme === theme.id}
+                  title={theme.description}
+                >
+                  <span className="theme-rail__icon" aria-hidden="true">{theme.icon}</span>
+                  <span><strong>{theme.label}</strong><small>{THEME_COUNTS.get(theme.id) ?? 0} объектов</small></span>
                 </button>
               ))}
             </div>

@@ -1,0 +1,972 @@
+{
+  "sources": [
+    "https://simcity-buildit.fandom.com/",
+    "https://vk.com/simcitybuildit"
+  ],
+  "buildings": {
+    "Абсолютно обычная пещера": {
+      "originalName": "Completely Normal Cave",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Completely_Normal_Cave",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-eccf5b3dec0764362ac5.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457275582",
+          "sourceFile": "457275582"
+        }
+      ]
+    },
+    "Абсолютно обычный маяк (пляж)": {
+      "originalName": "Completely Normal Lighthouse",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Completely_Normal_Lighthouse",
+      "additionalGalleries": [
+        "VK:Абсолютно обычный маяк (пляж)"
+      ]
+    },
+    "Абсолютно обычный пикник": {
+      "originalName": "Completely Normal Picnic",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Completely_Normal_Picnic",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-779bb8fad39cbb70573f.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457275580",
+          "sourceFile": "457275580"
+        }
+      ]
+    },
+    "Аллея кей-попа": {
+      "originalName": "K-Pop Park Avenue",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/K-Pop_Park_Avenue",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-64e591f1d6e00aa082a9.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276417",
+          "sourceFile": "457276417"
+        },
+        {
+          "file": "mayor-fandom-298b6406be0bd1596a97.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/K-Pop_Park_Avenue",
+          "sourceFile": "K-Pop Park Avenue Day.jpg"
+        },
+        {
+          "file": "mayor-fandom-7c0668ddaa10c51e2239.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/K-Pop_Park_Avenue",
+          "sourceFile": "K-Pop Park Avenue Night.jpg"
+        }
+      ]
+    },
+    "Арена \"Кибербоул\"": {
+      "originalName": "Cyberbowl Arena",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Cyberbowl_Arena",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-255b866cac7f8788d7c8.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276059",
+          "sourceFile": "457276059"
+        }
+      ]
+    },
+    "Башня \"НеонКорп\"": {
+      "originalName": "NeonCorp Tower",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/NeonCorp_Tower",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-79521a14ebd4d4669f8c.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276060",
+          "sourceFile": "457276060"
+        }
+      ]
+    },
+    "Большой главный терминал": {
+      "originalName": "Big Main Terminal",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Big_Main_Terminal",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-b71ad2b75edc6e90100b.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457268073",
+          "sourceFile": "457268073"
+        },
+        {
+          "file": "mayor-fandom-cb17b5ee9d210fd6903e.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Big_Main_Terminal",
+          "sourceFile": "Big Main Terminalday.jpg"
+        },
+        {
+          "file": "mayor-fandom-9f4c105605fcb3de078c.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Big_Main_Terminal",
+          "sourceFile": "Big Main Terminalnight.jpg"
+        }
+      ]
+    },
+    "бухта Виктория (пляж)": {
+      "originalName": "Victoria Inner Harbor",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Victoria_Inner_Harbor",
+      "additionalGalleries": [
+        "Victoria Inner Harbor"
+      ]
+    },
+    "Бухта с лодками вака (пляж)": {
+      "originalName": "Waka Boat Harbor",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Waka_Boat_Harbor",
+      "additionalGalleries": [
+        "Waka Boat Harbor"
+      ]
+    },
+    "Водные бунгало": {
+      "originalName": "Aquatic Bungalows",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Aquatic_Bungalows",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-3207736f1aa81a4ab265.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276495",
+          "sourceFile": "457276495"
+        }
+      ]
+    },
+    "Врата маори": {
+      "originalName": "Maori Gate",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Maori_Gate",
+      "additionalGalleries": [
+        "Maori Gate"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-3629928b80ad8bc4f5ea.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Maori_Gate",
+          "sourceFile": "Maori Gate Day.png"
+        },
+        {
+          "file": "mayor-fandom-c038edaccda83377ba85.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Maori_Gate",
+          "sourceFile": "Maori Gate Night.png"
+        }
+      ]
+    },
+    "Главная торговая улица": {
+      "originalName": "Versla Main Street",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Versla_Main_Street",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-9156c8a6a8807d81f404.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Versla_Main_Street",
+          "sourceFile": "Versla Main Street.png"
+        },
+        {
+          "file": "mayor-fandom-f2f310b43bb851798822.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Versla_Main_Street",
+          "sourceFile": "Versla Main Streetnight.JPG"
+        },
+        {
+          "file": "mayor-fandom-521576933dbf210527e3.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Versla_Main_Street",
+          "sourceFile": "Versla Main Streetday.JPG"
+        }
+      ]
+    },
+    "Дворец Чхандоккун": {
+      "originalName": "Changdeokgung Palace",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Changdeokgung_Palace",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-c2aac39ef2401b589302.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276416",
+          "sourceFile": "457276416"
+        }
+      ]
+    },
+    "Дельта (пляж)": {
+      "originalName": "River Delta",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/River_Delta",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-120b829bf512ee791025.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276496",
+          "sourceFile": "457276496"
+        }
+      ]
+    },
+    "Деревня на берегу": {
+      "originalName": "Seaside Village",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Seaside_Village",
+      "additionalGalleries": [
+        "Seaside Village"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-befee6e145ecdde4b3d6.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Seaside_Village",
+          "sourceFile": "Seaside Village Day.png"
+        },
+        {
+          "file": "mayor-fandom-d242965604380a9fb226.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Seaside_Village",
+          "sourceFile": "Seaside Village Night.png"
+        }
+      ]
+    },
+    "Дорога над заливом (пляж)": {
+      "originalName": "Corniche of Gulf",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Corniche_of_Gulf",
+      "additionalGalleries": [
+        "Corniche of Gulf"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-48c1d7e8fd264b4e1960.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Corniche_of_Gulf",
+          "sourceFile": "Corniche of Gulfday.jpg"
+        },
+        {
+          "file": "mayor-fandom-63a636ba94304c7d17f0.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Corniche_of_Gulf",
+          "sourceFile": "Corniche of Gulfnight.jpg"
+        }
+      ]
+    },
+    "Зал игровых автоматов": {
+      "originalName": "The Arcade",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/The_Arcade",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-acb98c64ef3a4748eb18.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/The_Arcade",
+          "sourceFile": "The Arcade.PNG"
+        },
+        {
+          "file": "mayor-fandom-7c491e8296dd53c7aae9.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/The_Arcade",
+          "sourceFile": "The Arcadenight.jpg"
+        },
+        {
+          "file": "mayor-fandom-b7a0f47db52db678f923.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/The_Arcade",
+          "sourceFile": "The Arcadeday.jpg"
+        }
+      ]
+    },
+    "Замок путешественника": {
+      "originalName": "Explorer's Castle",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Explorer%27s_Castle",
+      "additionalGalleries": [
+        "Explorer's Castle"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-fad9ef4ab416cda72409.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Explorer%27s_Castle",
+          "sourceFile": "Explorer's Castleday.jpg"
+        },
+        {
+          "file": "mayor-fandom-98aea17aa2ecf44b1263.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Explorer%27s_Castle",
+          "sourceFile": "Explorer's Castlenight.jpg"
+        }
+      ]
+    },
+    "Западный квартал": {
+      "originalName": "Sim West Quarter",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Sim_West_Quarter",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-0cc1f566c50c6ec25e60.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457270371",
+          "sourceFile": "457270371"
+        },
+        {
+          "file": "mayor-fandom-3a97fa0389e4e86c8e68.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Sim_West_Quarter",
+          "sourceFile": "Sim West Quarterday.jpg"
+        },
+        {
+          "file": "mayor-fandom-65fe617adfbbe6a90a8d.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Sim_West_Quarter",
+          "sourceFile": "Sim West Quarternight.jpg"
+        }
+      ]
+    },
+    "Заповедник для рептилий": {
+      "originalName": "Reptile Sanctuary",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Reptile_Sanctuary",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-d7cfbbf238b1d4055530.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276350",
+          "sourceFile": "457276350"
+        },
+        {
+          "file": "mayor-fandom-72f23e194ba21bb0542c.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Reptile_Sanctuary",
+          "sourceFile": "Reptile Sanctuary Day.jpg"
+        },
+        {
+          "file": "mayor-fandom-d0130f84e8b2efa94e42.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Reptile_Sanctuary",
+          "sourceFile": "Reptile Sanctuary Night.jpg"
+        }
+      ]
+    },
+    "Здание-робот": {
+      "originalName": "Robo Tower",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Robo_Tower",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-81a37f0322eedb5d5072.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Robo_Tower",
+          "sourceFile": "Robo Tower.PNG"
+        },
+        {
+          "file": "mayor-fandom-2e60a1ec272087c0280a.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Robo_Tower",
+          "sourceFile": "Robo Towernight.JPG"
+        },
+        {
+          "file": "mayor-fandom-42a35c0a46ac53ed239c.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Robo_Tower",
+          "sourceFile": "Robo Towerday.JPG"
+        }
+      ]
+    },
+    "Здание-слон": {
+      "originalName": "Tusk Tower",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Tusk_Tower",
+      "additionalGalleries": [
+        "Tusk Tower"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-325e8bed31e0bbbd4909.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Tusk_Tower",
+          "sourceFile": "Tusk Towerday.PNG"
+        },
+        {
+          "file": "mayor-fandom-39543e126f17ef1a554a.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Tusk_Tower",
+          "sourceFile": "Tusk Towernight.PNG"
+        }
+      ]
+    },
+    "Зона наблюдения за китами (пляж)": {
+      "originalName": "Whale Watch",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Whale_Watch",
+      "additionalGalleries": [
+        "Whale Watch"
+      ]
+    },
+    "Историческая библиотека": {
+      "originalName": "Monument Library",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Monument_Library",
+      "additionalGalleries": [
+        "Monument Library"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-e08d9589d5ceaf6c2874.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Monument_Library",
+          "sourceFile": "Monument Libraryday.jpg"
+        },
+        {
+          "file": "mayor-fandom-88ef9eb1acf4ef381288.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Monument_Library",
+          "sourceFile": "Monument Librarynight.jpg"
+        }
+      ]
+    },
+    "Каса-Мила": {
+      "originalName": "La Pedrera",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/La_Pedrera",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-103f0b43a6f7f864303b.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/La_Pedrera",
+          "sourceFile": "La Pedrera.PNG"
+        },
+        {
+          "file": "mayor-fandom-286de8ec34973320b437.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/La_Pedrera",
+          "sourceFile": "La Pedreranight.JPG"
+        },
+        {
+          "file": "mayor-fandom-55a8f1d826acde9b2102.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/La_Pedrera",
+          "sourceFile": "La Pedreraday.JPG"
+        }
+      ]
+    },
+    "Кафедральный собор у моря": {
+      "originalName": "Cathedral of the Sea",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Cathedral_of_the_Sea",
+      "additionalGalleries": [
+        "Cathedral of the Sea"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-decba52b2d6a57bb9ac9.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Cathedral_of_the_Sea",
+          "sourceFile": "Cathedral of the Seaday.JPG"
+        },
+        {
+          "file": "mayor-fandom-daae785bc5b99f7ff2c6.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Cathedral_of_the_Sea",
+          "sourceFile": "Cathedral of the Seanight.JPG"
+        }
+      ]
+    },
+    "Конный двор": {
+      "originalName": "Stables",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Stables",
+      "additionalGalleries": [
+        "Stables"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-5c3d336e3722ea42ce5a.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Stables",
+          "sourceFile": "Stables Day.png"
+        },
+        {
+          "file": "mayor-fandom-f72a7a533158c97c9253.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Stables",
+          "sourceFile": "Stables Night.png"
+        }
+      ]
+    },
+    "Конюшня для оленей": {
+      "originalName": "Reindeer Stable",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Reindeer_Stable",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-03881cae30dbc6bb6e6e.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457275896",
+          "sourceFile": "457275896"
+        }
+      ]
+    },
+    "Конюшня для пони": {
+      "originalName": "Pony Stables",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Pony_Stables",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-0c6a8c4e760de329c914.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276347",
+          "sourceFile": "457276347"
+        }
+      ]
+    },
+    "Королевская крепость": {
+      "originalName": "Royal Fortress",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Royal_Fortress",
+      "additionalGalleries": [
+        "Royal Fortress"
+      ]
+    },
+    "Курорт \"Крона\" (гора)": {
+      "originalName": "Treehouse Resort",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Treehouse_Resort",
+      "additionalGalleries": [
+        "Treehouse Resort"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-93935b1bb0a1eff81414.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Treehouse_Resort",
+          "sourceFile": "Treehouse Resortday.jpg"
+        },
+        {
+          "file": "mayor-fandom-f19193a0f98d070701c6.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Treehouse_Resort",
+          "sourceFile": "Treehouse Resortnight.jpg"
+        }
+      ]
+    },
+    "Место приводнения «Ориона» (пляж)": {
+      "originalName": "Orion Splashdown Site",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Orion_Splashdown_Site",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-40537090ea514c1ec75a.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276244",
+          "sourceFile": "457276244"
+        }
+      ]
+    },
+    "Музей праздников": {
+      "originalName": "Museum of Festivities",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Museum_of_Festivities",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-5108112ad7f2935147b2.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457268828",
+          "sourceFile": "457268828"
+        },
+        {
+          "file": "mayor-fandom-7f4aef981497766bf928.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Museum_of_Festivities",
+          "sourceFile": "Museum of Festivitiesday.jpg"
+        },
+        {
+          "file": "mayor-fandom-b429ced9319968d01db2.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Museum_of_Festivities",
+          "sourceFile": "Museum of Festivitiesnight.jpg"
+        }
+      ]
+    },
+    "Набережная Кейптауна (пляж)": {
+      "originalName": "Cape Town Waterfront",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Cape_Town_Waterfront",
+      "additionalGalleries": [
+        "Cape Town Waterfront"
+      ]
+    },
+    "Небосреб One Park": {
+      "originalName": "The One Park",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/The_One_Park",
+      "additionalGalleries": [
+        "The One Park"
+      ]
+    },
+    "Осколок": {
+      "originalName": "Fragment",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Fragment",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-34e51805cf45f0c32779.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Fragment",
+          "sourceFile": "Fragment.PNG"
+        },
+        {
+          "file": "mayor-fandom-50828705796550ff4483.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Fragment",
+          "sourceFile": "Fragmentnight.jpg"
+        },
+        {
+          "file": "mayor-fandom-6a7125d0bf408742f8c7.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Fragment",
+          "sourceFile": "Fragmentday.jpg"
+        }
+      ]
+    },
+    "Панорамная башня": {
+      "originalName": "Scenic Tower",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Scenic_Tower",
+      "additionalGalleries": [
+        "Scenic Tower"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-ab9eef0bffbd4ad8a690.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Scenic_Tower",
+          "sourceFile": "Scenic Towerday.JPG"
+        },
+        {
+          "file": "mayor-fandom-d6ff15b430d907809375.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Scenic_Tower",
+          "sourceFile": "Scenic Towernight.JPG"
+        }
+      ]
+    },
+    "Парк водных развлечений": {
+      "originalName": "Aquatic Water Park",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Aquatic_Water_Park",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-3496e8b54bd094cfc597.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276499",
+          "sourceFile": "457276499"
+        }
+      ]
+    },
+    "Плавучая вилла": {
+      "originalName": "Floating Villa",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Floating_Villa",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-15f0a8d92bdc1458915d.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276497",
+          "sourceFile": "457276497"
+        }
+      ]
+    },
+    "Пляж валунов (пляж)": {
+      "originalName": "Boulders Beach",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Boulders_Beach",
+      "additionalGalleries": [
+        "Boulders Beach"
+      ]
+    },
+    "Полицейская академия": {
+      "originalName": "Police Academy",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Police_Academy",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-583177a645224ba550e7.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457273907",
+          "sourceFile": "457273907"
+        },
+        {
+          "file": "mayor-fandom-16f19d100ed40d35cc18.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Police_Academy",
+          "sourceFile": "Police Academyday.JPG"
+        },
+        {
+          "file": "mayor-fandom-21c37bad130259b8a4d1.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Police_Academy",
+          "sourceFile": "Police Academynight.JPG"
+        }
+      ]
+    },
+    "Прибрежный замок (пляж)": {
+      "originalName": "Beach Castle",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Beach_Castle",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-aaa7b0ae4cdc8b12f5ed.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Beach_Castle",
+          "sourceFile": "Beach Castle.PNG"
+        },
+        {
+          "file": "mayor-fandom-c5d1aeab49d627f96e7d.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Beach_Castle",
+          "sourceFile": "Beach Castlenight.jpg"
+        },
+        {
+          "file": "mayor-fandom-241a25e460c61f8902ff.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Beach_Castle",
+          "sourceFile": "Beach Castleday.jpg"
+        }
+      ]
+    },
+    "Рай для щенков": {
+      "originalName": "Puppy Paradise",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Puppy_Paradise",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-60881311e47a376d66c7.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276348",
+          "sourceFile": "457276348"
+        }
+      ]
+    },
+    "Рыцарский замок": {
+      "originalName": "Castle of the Knights",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Castle_of_the_Knights",
+      "additionalGalleries": [
+        "Castle of the Knights"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-30c5a3856402b89a1aa3.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Castle_of_the_Knights",
+          "sourceFile": "Castle of the Knightsday.jpg"
+        },
+        {
+          "file": "mayor-fandom-b3552b3bf4db95726259.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Castle_of_the_Knights",
+          "sourceFile": "Castle of the Knightsnight.jpg"
+        }
+      ]
+    },
+    "Традиционная вечеринка \"Луау\"": {
+      "originalName": "Traditional Luau",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Traditional_Luau",
+      "additionalGalleries": [
+        "Traditional Luau"
+      ]
+    },
+    "Тур на субмарине": {
+      "originalName": "Submarine Tour",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Submarine_Tour",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-d2b8abd629051f6d6d90.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276498",
+          "sourceFile": "457276498"
+        }
+      ]
+    },
+    "Укромный птичник": {
+      "originalName": "Poultry Haven",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Poultry_Haven",
+      "additionalGalleries": [
+        "Poultry Haven"
+      ],
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-ac167612408d2be37be0.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Poultry_Haven",
+          "sourceFile": "Poultry Haven Day.png"
+        },
+        {
+          "file": "mayor-fandom-f036ed48771cecbc483a.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Poultry_Haven",
+          "sourceFile": "Poultry Haven Night.png"
+        }
+      ]
+    },
+    "Университетский парк": {
+      "originalName": "University Park Quad",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/University_Park_Quad",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-69f44c8246f24afd28e9.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457268069",
+          "sourceFile": "457268069"
+        },
+        {
+          "file": "mayor-fandom-4453c57d47327ec945d3.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/University_Park_Quad",
+          "sourceFile": "University Park Squad Day.png"
+        }
+      ]
+    },
+    "Фонтан на берегу озера": {
+      "originalName": "Lakeside Fountain",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Lakeside_Fountain",
+      "additionalGalleries": [
+        "VK:Фонтан на берегу озера"
+      ]
+    },
+    "Храм Понынса": {
+      "originalName": "Bongeunsa Temple",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Bongeunsa_Temple",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-d12ecb7d6e1f13a9a9aa.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276419",
+          "sourceFile": "457276419"
+        }
+      ]
+    },
+    "Центр деревни": {
+      "originalName": "Rustic Village center",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Rustic_Village_center",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-6784f4eb3c8d35a5ccfb.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457267601",
+          "sourceFile": "457267601"
+        },
+        {
+          "file": "mayor-fandom-b2d864944d4210c815a9.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Rustic_Village_center",
+          "sourceFile": "Rustic Village center Day (Medium).png"
+        },
+        {
+          "file": "mayor-fandom-17bc059a658811e174a0.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Rustic_Village_center",
+          "sourceFile": "Rustic Village center Night (Medium).png"
+        }
+      ]
+    },
+    "Церковь хадльгримскиркья": {
+      "originalName": "Tall Church",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/Tall_Church",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-007406464daf68d20adf.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Tall_Church",
+          "sourceFile": "Tall Church.png"
+        },
+        {
+          "file": "mayor-fandom-73b5247907d4fedfb63c.webp",
+          "kind": "night",
+          "label": "Ночью · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Tall_Church",
+          "sourceFile": "Tall Churchnight.JPG"
+        },
+        {
+          "file": "mayor-fandom-ab6e9167d8c528b1c656.webp",
+          "kind": "day",
+          "label": "Днём · Fandom",
+          "sourcePage": "https://simcity-buildit.fandom.com/wiki/Tall_Church",
+          "sourceFile": "Tall Churchday.JPG"
+        }
+      ]
+    },
+    "Штаб кей-попа": {
+      "originalName": "K-Pop HQ",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/K-Pop_HQ",
+      "additionalImages": [
+        {
+          "file": "mayor-fandom-06cecb68b5d7eb51c3ee.webp",
+          "kind": "main",
+          "label": "Фото сообщества",
+          "sourcePage": "https://vk.com/photo-61529959_457276415",
+          "sourceFile": "457276415"
+        }
+      ]
+    },
+    "Экспозиция ловчих птиц": {
+      "additionalGalleries": [
+        "Falconry Demonstration"
+      ]
+    },
+    "Яхт-клуб": {
+      "originalName": "(Alpha) Yacht Club",
+      "sourcePage": "https://simcity-buildit.fandom.com/wiki/%28Alpha%29_Yacht_Club",
+      "additionalGalleries": [
+        "(Alpha) Yacht Club"
+      ]
+    }
+  }
+}

@@ -24,6 +24,7 @@ export const defaultFilters = (section: Section): SectionFilters => ({
   query: '',
   season: 'all',
   specialization: 'all',
+  theme: 'all',
   footprint: 'all',
   featuredOnly: false,
   sort: section === 'mayor' ? 'season-desc' : 'boost-desc',

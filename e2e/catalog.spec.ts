@@ -286,12 +286,30 @@ test.describe('Городской архив', () => {
     const catalog = new CatalogPage(page)
     await catalog.open()
 
-    await page.locator('.catalog-nav > button').nth(2).click()
+    await page.getByRole('button', { name: /Популярные/ }).click()
 
     await expect(page).toHaveURL(/view=popular/)
     await expect(page.getByRole('heading', { name: 'Популярные здания', exact: true })).toBeVisible()
     await expect(catalog.cards).toHaveCount(38)
     await expect(catalog.cards.filter({ hasText: 'Ракета "Артемида II"' })).toHaveCount(0)
+  })
+
+  test('собирает здания из всего каталога по тематическим плиткам', async ({ page }) => {
+    const catalog = new CatalogPage(page)
+    await catalog.open()
+    await catalog.showThemes()
+
+    await expect(page).toHaveURL(/view=themes/)
+    await expect(page.getByRole('heading', { name: 'Тематические подборки', exact: true })).toBeVisible()
+    const themeRail = page.getByLabel('Выбор тематики')
+    await expect(themeRail.getByRole('button')).toHaveCount(13)
+
+    await themeRail.getByRole('button', { name: /^Пустыня/ }).click()
+
+    await expect(page).toHaveURL(/theme=desert/)
+    await expect(page.getByRole('heading', { name: 'Пустыня', exact: true })).toBeVisible()
+    await expect(catalog.cards.filter({ hasText: 'Великий сфинкс Гизы' })).toHaveCount(1)
+    await expect(catalog.specializationFilter).toBeVisible()
   })
 
   test('раскладывает специализации ровно в две строки на компьютере', async ({ page }) => {
@@ -403,7 +421,7 @@ test.describe('Мобильный каталог', () => {
     await expect(page).toHaveURL(/season=71/)
   })
 
-  test('показывает тёмную тему, импорт и три раздела в одной строке', async ({ page }) => {
+  test('показывает тёмную тему, импорт и четыре раздела в одной строке', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()
 
@@ -411,12 +429,12 @@ test.describe('Мобильный каталог', () => {
     await expect(page.locator('.hero__visual')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Вставить список зданий в избранное' })).toBeInViewport()
     const navButtons = page.locator('.catalog-nav > button')
-    await expect(navButtons).toHaveCount(3)
+    await expect(navButtons).toHaveCount(4)
     const tops = await navButtons.evaluateAll((buttons) =>
       buttons.map((button) => Math.round(button.getBoundingClientRect().top)),
     )
     expect(new Set(tops).size).toBe(1)
-    await expect(navButtons.nth(2)).toBeInViewport()
+    await expect(navButtons.nth(3)).toBeInViewport()
   })
 
   test('открывает и листает галерею Hot Spot-здания на телефоне', async ({ page }) => {

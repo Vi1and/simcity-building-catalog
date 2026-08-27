@@ -46,4 +46,8 @@ export class CatalogPage {
   async showOtherBuildings(): Promise<void> {
     await this.page.getByRole('button', { name: /Другие здания/ }).click()
   }
+
+  async showThemes(): Promise<void> {
+    await this.page.getByRole('button', { name: /Тематические/ }).click()
+  }
 }

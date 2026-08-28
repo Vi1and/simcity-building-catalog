@@ -62,14 +62,14 @@ describe('catalog helpers', () => {
     expect(formatFootprint(entries[0])).toBe('2 × 3 │ 6 клеток')
   })
 
-  it('shows only featured buildings when the rare filter is enabled', () => {
+  it('prioritizes featured buildings while keeping regular buildings below them', () => {
     const entries = [
       building({ id: 'regular' }),
       building({ id: 'featured', isFeatured: true, traits: ['unique-effect'] }),
     ]
     const filters = { ...defaultFilters('mayor'), featuredOnly: true }
     expect(filterAndSortBuildings(entries, { section: 'mayor', filters }).map((entry) => entry.id))
-      .toEqual(['featured'])
+      .toEqual(['featured', 'regular'])
   })
 
   it('shows only sheet-marked popular buildings in the popular section', () => {

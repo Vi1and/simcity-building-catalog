@@ -235,6 +235,9 @@ export function MayorPassIcon(props: GameIconProps) {
 }
 
 const countryThemeIds = [
+  'usa',
+  'australia',
+  'china',
   'italy',
   'france',
   'spain',
@@ -243,7 +246,6 @@ const countryThemeIds = [
   'scandinavia',
   'central-europe',
   'netherlands',
-  'ireland',
   'monaco',
 ] as const
 
@@ -271,6 +273,33 @@ function FlagShell({ children, themeId }: { children: ReactNode; themeId: Countr
 
 export function CountryFlag({ themeId }: { themeId: CountryThemeId }) {
   switch (themeId) {
+    case 'usa':
+      return (
+        <FlagShell themeId={themeId}>
+          <path fill="#fff" d="M0 0h30v20H0z" />
+          <path fill="#b22234" d="M0 0h30v2H0zm0 4h30v2H0zm0 4h30v2H0zm0 4h30v2H0zm0 4h30v2H0z" />
+          <path fill="#3c3b6e" d="M0 0h13v10H0z" />
+          <path fill="#fff" d="m2 2 .4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1L2 2Zm4 0 .4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1L6 2Zm4 0 .4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1L10 2ZM4 6l.4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1L4 6Zm4 0 .4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1L8 6Z" />
+        </FlagShell>
+      )
+    case 'australia':
+      return (
+        <FlagShell themeId={themeId}>
+          <path fill="#012169" d="M0 0h30v20H0z" />
+          <path stroke="#fff" strokeWidth="3" d="m0 0 13 9M13 0 0 9" />
+          <path stroke="#c8102e" strokeWidth="1.2" d="m0 0 13 9M13 0 0 9" />
+          <path fill="#fff" d="M5 0h3v9H5zM0 3h13v3H0z" />
+          <path fill="#c8102e" d="M5.8 0h1.4v9H5.8zM0 3.8h13v1.4H0z" />
+          <circle cx="21" cy="6" r="1.5" fill="#fff" /><circle cx="25" cy="11" r="1.2" fill="#fff" /><circle cx="19" cy="15" r="1.1" fill="#fff" /><circle cx="27" cy="17" r=".9" fill="#fff" />
+        </FlagShell>
+      )
+    case 'china':
+      return (
+        <FlagShell themeId={themeId}>
+          <path fill="#de2910" d="M0 0h30v20H0z" />
+          <path fill="#ffde00" d="m6 3 1 2 2.2-1.6 1.5.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.5L5 5l1-2Zm6.8.2.4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1.4-.8Zm2.5 3.1.4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1.4-.8Zm-.5 4.2.4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1.4-.8Zm-3 2.6.4.8.9.1-.7.6.2.9-.8-.4-.8.4.2-.9-.7-.6.9-.1.4-.8Z" />
+        </FlagShell>
+      )
     case 'italy':
       return <FlagShell themeId={themeId}><path fill="#009246" d="M0 0h10v20H0z" /><path fill="#fff" d="M10 0h10v20H10z" /><path fill="#ce2b37" d="M20 0h10v20H20z" /></FlagShell>
     case 'france':
@@ -295,8 +324,6 @@ export function CountryFlag({ themeId }: { themeId: CountryThemeId }) {
       return <FlagShell themeId={themeId}><path fill="#ed2939" d="M0 0h30v20H0z" /><path fill="#fff" d="M0 6.67h30v6.66H0z" /></FlagShell>
     case 'netherlands':
       return <FlagShell themeId={themeId}><path fill="#ae1c28" d="M0 0h30v6.67H0z" /><path fill="#fff" d="M0 6.67h30v6.67H0z" /><path fill="#21468b" d="M0 13.34h30V20H0z" /></FlagShell>
-    case 'ireland':
-      return <FlagShell themeId={themeId}><path fill="#169b62" d="M0 0h10v20H0z" /><path fill="#fff" d="M10 0h10v20H10z" /><path fill="#ff883e" d="M20 0h10v20H20z" /></FlagShell>
     case 'monaco':
       return <FlagShell themeId={themeId}><path fill="#ce1126" d="M0 0h30v10H0z" /><path fill="#fff" d="M0 10h30v10H0z" /></FlagShell>
   }

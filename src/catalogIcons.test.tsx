@@ -35,6 +35,9 @@ describe('catalog iconography', () => {
 
   it('renders country themes as repository-owned SVG flags instead of emoji', () => {
     const countryThemes = [
+      'usa',
+      'australia',
+      'china',
       'italy',
       'france',
       'spain',
@@ -43,12 +46,12 @@ describe('catalog iconography', () => {
       'scandinavia',
       'central-europe',
       'netherlands',
-      'ireland',
       'monaco',
     ] as const
 
     expect(countryThemes.every(isCountryTheme)).toBe(true)
     expect(isCountryTheme('japan')).toBe(false)
+    expect(isCountryTheme('ireland')).toBe(false)
 
     for (const themeId of countryThemes) {
       const flag = renderToStaticMarkup(<CountryFlag themeId={themeId} />)

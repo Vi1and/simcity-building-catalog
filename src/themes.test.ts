@@ -141,6 +141,28 @@ describe('thematic catalog', () => {
     expect(tropics).not.toContain('Курорт "Крона" (гора)')
   })
 
+  it('fills the new mood, nature and regional collections with intentional buildings', () => {
+    expect(namesForTheme('mystic')).toEqual(expect.arrayContaining([
+      'Абсолютно обычная библиотека',
+      'Абсолютно обычная пещера',
+      'Абсолютно обычный маяк (пляж)',
+      'Абсолютно обычный пикник',
+      'Дом с привидениями',
+      'Призрачный портал',
+    ]))
+    expect(namesForTheme('fountains')).toEqual(expect.arrayContaining([
+      'Фонтан Треви',
+      'Волшебный фонтан Монжуик',
+      'Фонтан святого Патрика',
+    ]))
+    expect(namesForTheme('usa')).toEqual(expect.arrayContaining(['Бродвей', 'Чикагская башня']))
+    expect(namesForTheme('farms')).toEqual(expect.arrayContaining(['Старый фермерский дом', 'Центр деревни', 'Удивительный амбар']))
+    expect(namesForTheme('autumn')).toEqual(expect.arrayContaining(['Осенний сад', 'Центральный парк (север)', 'Клены в форме сердца']))
+    expect(namesForTheme('australia')).toEqual(expect.arrayContaining(['Улуру', 'Австралийский музей']))
+    expect(namesForTheme('china')).toEqual(expect.arrayContaining(['Год быка', 'Киоски с китайской едой']))
+    expect(namesForTheme('trees')).toEqual(expect.arrayContaining(['Дерево-Пламбоб', 'Канатный парк на деревьях']))
+  })
+
   it('separates bridges, transport, Alpha City and European regions', () => {
     const transport = namesForTheme('transport')
     expect(transport).toContain('Вертолётная площадка')
@@ -162,7 +184,6 @@ describe('thematic catalog', () => {
       'scandinavia',
       'central-europe',
       'netherlands',
-      'ireland',
       'monaco',
     ]
     for (const themeId of europeanThemeIds) {
@@ -176,9 +197,9 @@ describe('thematic catalog', () => {
     expect(namesForTheme('germany')).toContain('Дворец Нимфенбург')
     expect(namesForTheme('britain')).toContain('Королевский Альберт Холл')
     expect(namesForTheme('scandinavia')).toContain('Музей драккаров')
+    expect(namesForTheme('scandinavia')).toContain('Переулок Шэмрок')
     expect(namesForTheme('central-europe')).toContain('Дворец Хофбург')
     expect(namesForTheme('netherlands')).toContain('Консертгебау')
-    expect(namesForTheme('ireland')).toContain('Переулок Шэмрок')
     expect(namesForTheme('monaco')).toContain('Опера Монте-Карло')
   })
 

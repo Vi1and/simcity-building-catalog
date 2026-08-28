@@ -363,15 +363,19 @@ test.describe('Городской архив', () => {
     expect(positions.heroBottom).toBeLessThan(0)
   })
 
-  test('фильтрует популярные, редкие и прокачиваемые здания', async ({ page }) => {
+  test('ставит популярные и редкие первыми, но сохраняет обычные здания ниже', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()
 
     await page.getByRole('checkbox', { name: /Популярные \/ редкие/ }).check()
 
     await expect(page).toHaveURL(/rare=1/)
-    await expect(catalog.cards).toHaveCount(7)
-    await expect(catalog.cards.locator('.building-card__feature')).toHaveCount(7)
+    await expect(page.locator('.results-toolbar__priority')).toHaveText('Популярные и редкие — сначала')
+    await expect(catalog.cards).toHaveCount(48)
+    for (let index = 0; index < 7; index += 1) {
+      await expect(catalog.cards.nth(index).locator('.building-card__feature')).toBeVisible()
+    }
+    await expect(catalog.cards.nth(7).locator('.building-card__feature')).toHaveCount(0)
   })
 
   test('показывает 38 популярных зданий из таблицы в отдельном разделе', async ({ page }) => {
@@ -394,13 +398,27 @@ test.describe('Городской архив', () => {
     await expect(page).toHaveURL(/view=themes/)
     await expect(page.getByRole('heading', { name: 'Тематические подборки', exact: true })).toBeVisible()
     const themeRail = page.getByLabel('Выбор тематики')
-    await expect(themeRail.getByRole('button')).toHaveCount(24)
+    await expect(themeRail.getByRole('button')).toHaveCount(31)
+    await expect(themeRail.getByRole('button', { name: /^Ирландия/ })).toHaveCount(0)
+    const mystic = themeRail.getByRole('button', { name: /^Мистика/ })
+    await expect(mystic).toContainText('👻')
     const italy = themeRail.getByRole('button', { name: /^Италия/ })
     await expect(italy.locator('[data-country-theme="italy"]')).toBeVisible()
     await expect(italy).not.toContainText('🇮🇹')
     expect(
       await italy.locator('.catalog-country-flag').evaluate((element) => getComputedStyle(element).forcedColorAdjust),
     ).toBe('none')
+
+    await mystic.click()
+    await expect(page).toHaveURL(/theme=mystic/)
+    for (const name of [
+      'Абсолютно обычная библиотека',
+      'Абсолютно обычная пещера',
+      'Абсолютно обычный маяк',
+      'Абсолютно обычный пикник',
+    ]) {
+      await expect(catalog.cards.filter({ hasText: name })).toHaveCount(1)
+    }
 
     await themeRail.getByRole('button', { name: /^Пустыня/ }).click()
 

@@ -125,7 +125,8 @@ const readInitialState = (): InitialState => {
     themedFilters.footprint = params.get('size') ?? 'all'
     themedFilters.featuredOnly = params.get('rare') === '1'
     themedFilters.specialization = params.get('spec') ?? 'all'
-    themedFilters.theme = findCatalogTheme(params.get('theme') ?? '')?.id ?? 'all'
+    const requestedTheme = params.get('theme') === 'ireland' ? 'scandinavia' : params.get('theme') ?? ''
+    themedFilters.theme = findCatalogTheme(requestedTheme)?.id ?? 'all'
     if (validSort(params.get('sort'))) themedFilters.sort = params.get('sort') as SortMode
   }
 
@@ -697,7 +698,7 @@ function FilterPanel({ section, view, filters, footprints, onChange }: FilterPan
           <span className="featured-filter__mark" aria-hidden="true"><Sparkles size={17} /></span>
           <span>
             <strong>Популярные / редкие</strong>
-            <small>Эффекты и прокачиваемые</small>
+            <small>Сначала они, затем обычные</small>
           </span>
         </label>
       )}
@@ -1942,6 +1943,11 @@ export default function App() {
             <p aria-live="polite">
               <strong>{pluralizeBuildings(visibleBuildings.length)}</strong>
               {activeFilters.query && <span> по запросу «{activeFilters.query}»</span>}
+              {activeFilters.featuredOnly && (
+                <span className="results-toolbar__priority">
+                  <Sparkles size={13} aria-hidden="true" /> Популярные и редкие — сначала
+                </span>
+              )}
             </p>
             <div className="results-toolbar__actions">
               <div className="mobile-layout-toggle" role="group" aria-label="Карточек в одном ряду">

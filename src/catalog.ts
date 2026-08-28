@@ -176,8 +176,12 @@ export const filterAndSortBuildings = (
       (building) =>
         query.filters.footprint === 'all' || footprintKey(building) === query.filters.footprint,
     )
-    .filter((building) => !query.filters.featuredOnly || building.isFeatured)
-    .sort((left, right) => compareBuildings(left, right, query.filters.sort))
+    .sort((left, right) => {
+      if (query.filters.featuredOnly && left.isFeatured !== right.isFeatured) {
+        return left.isFeatured ? -1 : 1
+      }
+      return compareBuildings(left, right, query.filters.sort)
+    })
 }
 
 export const sortLabels: Record<SortMode, string> = {

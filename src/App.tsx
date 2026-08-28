@@ -154,6 +154,72 @@ const pluralizeBuildings = (count: number): string => {
   return `${count} зданий`
 }
 
+interface CatalogNavigationProps {
+  placement: 'primary' | 'dock'
+  view: View
+  section: Section
+  onShowSection: (section: Section) => void
+  onShowThemes: () => void
+  onShowPopular: () => void
+}
+
+function CatalogNavigation({
+  placement,
+  view,
+  section,
+  onShowSection,
+  onShowThemes,
+  onShowPopular,
+}: CatalogNavigationProps) {
+  const isDock = placement === 'dock'
+
+  return (
+    <div className={`catalog-nav-wrap catalog-nav-wrap--${placement}`}>
+      <nav
+        className="catalog-nav page-width"
+        aria-label={isDock ? 'Разделы каталога — нижнее меню' : 'Разделы каталога'}
+      >
+        <button
+          type="button"
+          className={view === 'catalog' && section === 'mayor' ? 'is-active' : ''}
+          onClick={() => onShowSection('mayor')}
+          aria-current={view === 'catalog' && section === 'mayor' ? 'page' : undefined}
+        >
+          <span className="catalog-nav__icon"><Crown size={19} /></span>
+          <span><strong>Абонемент мэра</strong><small>{catalog.meta.counts.mayor} зданий · 71 сезон</small></span>
+        </button>
+        <button
+          type="button"
+          className={view === 'catalog' && section === 'other' ? 'is-active' : ''}
+          onClick={() => onShowSection('other')}
+          aria-current={view === 'catalog' && section === 'other' ? 'page' : undefined}
+        >
+          <span className="catalog-nav__icon"><MapIcon size={19} /></span>
+          <span><strong>Другие здания</strong><small>{catalog.meta.counts.other} зданий · 16 категорий</small></span>
+        </button>
+        <button
+          type="button"
+          className={view === 'themes' ? 'is-active' : ''}
+          onClick={onShowThemes}
+          aria-current={view === 'themes' ? 'page' : undefined}
+        >
+          <span className="catalog-nav__icon"><Shapes size={19} /></span>
+          <span><strong>Тематические</strong><small>{catalogThemes.length} тем · {THEMED_BUILDINGS_COUNT} объектов</small></span>
+        </button>
+        <button
+          type="button"
+          className={view === 'popular' ? 'is-active' : ''}
+          onClick={onShowPopular}
+          aria-current={view === 'popular' ? 'page' : undefined}
+        >
+          <span className="catalog-nav__icon"><Sparkles size={19} /></span>
+          <span><strong>Популярные</strong><small>{POPULAR_BUILDINGS_COUNT} зданий из таблицы</small></span>
+        </button>
+      </nav>
+    </div>
+  )
+}
+
 const formatPhotoCount = (total: number): string => `${Math.max(total, 1)} фото`
 
 const formatEffectArea = (value: string): string =>
@@ -1585,7 +1651,12 @@ export default function App() {
 
     const stickyNav = document.querySelector<HTMLElement>('.catalog-nav-wrap')
     const stickyNavRect = stickyNav?.getBoundingClientRect()
-    const navOccupiesTopEdge = Boolean(stickyNavRect && stickyNavRect.top <= 1)
+    const navOccupiesTopEdge = Boolean(
+      stickyNavRect
+      && stickyNavRect.top >= -1
+      && stickyNavRect.top <= 1
+      && stickyNavRect.bottom > 0,
+    )
     const stickyOffset = (navOccupiesTopEdge ? Math.ceil(stickyNavRect?.height ?? 0) : 0) + 16
     const targetTop = target.getBoundingClientRect().top + window.scrollY - stickyOffset
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -1604,7 +1675,13 @@ export default function App() {
       const target = document.getElementById('catalog-controls')
       const stickyNav = document.querySelector<HTMLElement>('.catalog-nav-wrap')
       const stickyNavRect = stickyNav?.getBoundingClientRect()
-      const stickyHeight = stickyNavRect && stickyNavRect.top <= 1 ? stickyNavRect.height : 0
+      const navOccupiesTopEdge = Boolean(
+        stickyNavRect
+        && stickyNavRect.top >= -1
+        && stickyNavRect.top <= 1
+        && stickyNavRect.bottom > 0,
+      )
+      const stickyHeight = navOccupiesTopEdge ? stickyNavRect?.height ?? 0 : 0
       setShowScrollToFilters(Boolean(target && target.getBoundingClientRect().bottom < stickyHeight))
     }
 
@@ -1750,46 +1827,22 @@ export default function App() {
       </div>
 
       <main>
-        <div className="catalog-nav-wrap">
-          <div className="catalog-nav page-width" aria-label="Разделы каталога">
-            <button
-              type="button"
-              className={view === 'catalog' && section === 'mayor' ? 'is-active' : ''}
-              onClick={() => showSection('mayor')}
-              aria-current={view === 'catalog' && section === 'mayor' ? 'page' : undefined}
-            >
-              <span className="catalog-nav__icon"><Crown size={19} /></span>
-              <span><strong>Абонемент мэра</strong><small>{catalog.meta.counts.mayor} зданий · 71 сезон</small></span>
-            </button>
-            <button
-              type="button"
-              className={view === 'catalog' && section === 'other' ? 'is-active' : ''}
-              onClick={() => showSection('other')}
-              aria-current={view === 'catalog' && section === 'other' ? 'page' : undefined}
-            >
-              <span className="catalog-nav__icon"><MapIcon size={19} /></span>
-              <span><strong>Другие здания</strong><small>{catalog.meta.counts.other} зданий · 16 категорий</small></span>
-            </button>
-            <button
-              type="button"
-              className={view === 'themes' ? 'is-active' : ''}
-              onClick={showThemes}
-              aria-current={view === 'themes' ? 'page' : undefined}
-            >
-              <span className="catalog-nav__icon"><Shapes size={19} /></span>
-              <span><strong>Тематические</strong><small>{catalogThemes.length} тем · {THEMED_BUILDINGS_COUNT} объектов</small></span>
-            </button>
-            <button
-              type="button"
-              className={view === 'popular' ? 'is-active' : ''}
-              onClick={showPopular}
-              aria-current={view === 'popular' ? 'page' : undefined}
-            >
-              <span className="catalog-nav__icon"><Sparkles size={19} /></span>
-              <span><strong>Популярные</strong><small>{POPULAR_BUILDINGS_COUNT} зданий из таблицы</small></span>
-            </button>
-          </div>
-        </div>
+        <CatalogNavigation
+          placement="primary"
+          view={view}
+          section={section}
+          onShowSection={showSection}
+          onShowThemes={showThemes}
+          onShowPopular={showPopular}
+        />
+        <CatalogNavigation
+          placement="dock"
+          view={view}
+          section={section}
+          onShowSection={showSection}
+          onShowThemes={showThemes}
+          onShowPopular={showPopular}
+        />
 
         <section className="catalog-section page-width" aria-labelledby="catalog-heading">
           <div className="catalog-heading-row">

@@ -540,6 +540,10 @@ a:focus-visible {
   backdrop-filter: blur(16px);
 }
 
+.catalog-nav-wrap--dock {
+  display: none;
+}
+
 .catalog-nav {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3130,7 +3134,17 @@ dialog::backdrop {
     );
   }
 
-  .catalog-nav-wrap {
+  .catalog-nav-wrap--primary {
+    position: relative;
+    z-index: 1;
+    top: auto;
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 10px 26px rgba(21, 45, 42, 0.06);
+  }
+
+  .catalog-nav-wrap--dock {
+    display: block;
     position: fixed;
     z-index: 50;
     top: auto;

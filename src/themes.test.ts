@@ -161,6 +161,17 @@ describe('thematic catalog', () => {
     expect(namesForTheme('australia')).toEqual(expect.arrayContaining(['Улуру', 'Австралийский музей']))
     expect(namesForTheme('china')).toEqual(expect.arrayContaining(['Год быка', 'Киоски с китайской едой']))
     expect(namesForTheme('trees')).toEqual(expect.arrayContaining(['Дерево-Пламбоб', 'Канатный парк на деревьях']))
+    expect(namesForTheme('animals')).toEqual(expect.arrayContaining([
+      'Большой кот',
+      'Рай для щенков',
+      'Приют для животных',
+      'Парк активного отдыха для животных',
+      'Контактный зоопарк',
+      'Башня для наблюдения за китами',
+    ]))
+    expect(namesForTheme('animals')).not.toContain('Китайский театр')
+    expect(namesForTheme('animals')).not.toContain('Коттедж в лесу')
+    expect(namesForTheme('animals')).not.toContain('Ледник свинафелльсьёкулл (сползающий) (гора)')
   })
 
   it('separates bridges, transport, Alpha City and European regions', () => {

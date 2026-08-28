@@ -398,8 +398,10 @@ test.describe('Городской архив', () => {
     await expect(page).toHaveURL(/view=themes/)
     await expect(page.getByRole('heading', { name: 'Тематические подборки', exact: true })).toBeVisible()
     const themeRail = page.getByLabel('Выбор тематики')
-    await expect(themeRail.getByRole('button')).toHaveCount(31)
+    await expect(themeRail.getByRole('button')).toHaveCount(32)
     await expect(themeRail.getByRole('button', { name: /^Ирландия/ })).toHaveCount(0)
+    const animals = themeRail.getByRole('button', { name: /^Животные/ })
+    await expect(animals).toContainText('🐾')
     const mystic = themeRail.getByRole('button', { name: /^Мистика/ })
     await expect(mystic).toContainText('👻')
     const italy = themeRail.getByRole('button', { name: /^Италия/ })
@@ -408,6 +410,12 @@ test.describe('Городской архив', () => {
     expect(
       await italy.locator('.catalog-country-flag').evaluate((element) => getComputedStyle(element).forcedColorAdjust),
     ).toBe('none')
+
+    await animals.click()
+    await expect(page).toHaveURL(/theme=animals/)
+    await expect(page.getByRole('heading', { name: 'Животные', exact: true })).toBeVisible()
+    await expect(catalog.cards.filter({ hasText: 'Большой кот' })).toHaveCount(1)
+    await expect(catalog.cards.filter({ hasText: 'Контактный зоопарк' })).toHaveCount(1)
 
     await mystic.click()
     await expect(page).toHaveURL(/theme=mystic/)
@@ -588,26 +596,37 @@ test.describe('Мобильный каталог', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await expect(page.locator('.hero__visual')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Вставить список зданий в избранное' })).toBeInViewport()
-    const navButtons = page.locator('.catalog-nav > button')
-    await expect(navButtons).toHaveCount(4)
-    const tops = await navButtons.evaluateAll((buttons) =>
+    const primaryNavButtons = page.locator('.catalog-nav-wrap--primary .catalog-nav > button')
+    const dockNavButtons = page.locator('.catalog-nav-wrap--dock .catalog-nav > button')
+    await expect(primaryNavButtons).toHaveCount(4)
+    await expect(dockNavButtons).toHaveCount(4)
+    const tops = await primaryNavButtons.evaluateAll((buttons) =>
       buttons.map((button) => Math.round(button.getBoundingClientRect().top)),
     )
     expect(new Set(tops).size).toBe(1)
-    await expect(navButtons.nth(3)).toBeInViewport()
+    await expect(primaryNavButtons.nth(3)).toBeInViewport()
+    await expect(dockNavButtons.nth(3)).toBeInViewport()
+
+    await primaryNavButtons.nth(2).click()
+    await expect(page).toHaveURL(/view=themes/)
+    await expect(primaryNavButtons.nth(2)).toHaveClass(/is-active/)
+    await expect(dockNavButtons.nth(2)).toHaveClass(/is-active/)
   })
 
   test('держит навигацию и обмен избранным у нижнего края без перекрытия', async ({ page }) => {
     const catalog = new CatalogPage(page)
     await catalog.open()
 
-    const navigation = page.locator('.catalog-nav-wrap')
+    const topNavigation = page.locator('.catalog-nav-wrap--primary')
+    const navigation = page.locator('.catalog-nav-wrap--dock')
     const collectionDock = page.locator('.collection-bar--mobile-dock')
+    await expect(topNavigation).toHaveCSS('position', 'relative')
     await expect(navigation).toHaveCSS('position', 'fixed')
     await expect(collectionDock).toHaveCSS('position', 'fixed')
+    await expect(topNavigation).toBeInViewport()
 
     const positions = await page.evaluate(() => {
-      const navigationRect = document.querySelector('.catalog-nav-wrap')?.getBoundingClientRect()
+      const navigationRect = document.querySelector('.catalog-nav-wrap--dock')?.getBoundingClientRect()
       const dockRect = document.querySelector('.collection-bar--mobile-dock')?.getBoundingClientRect()
       return {
         navigationTop: navigationRect?.top ?? -1,
@@ -632,6 +651,12 @@ test.describe('Мобильный каталог', () => {
     await expect(actionButtons.nth(0)).toHaveAccessibleName('Очистить всё избранное')
     await expect(actionButtons.nth(1)).toContainText('Вставить')
     await expect(actionButtons.nth(2)).toHaveAccessibleName('Копировать все названия')
+
+    await page.evaluate(() => window.scrollTo(0, 700))
+    await expect.poll(async () => page.locator('.catalog-nav-wrap--primary').evaluate(
+      (element) => element.getBoundingClientRect().bottom,
+    )).toBeLessThan(0)
+    await expect(navigation).toBeInViewport()
     const actionTops = await actionButtons.evaluateAll((buttons) =>
       buttons.map((button) => Math.round(button.getBoundingClientRect().top)),
     )
@@ -785,11 +810,12 @@ test.describe('Планшетный каталог', () => {
     const catalog = new CatalogPage(page)
     await catalog.open()
 
-    await expect(page.locator('.catalog-nav-wrap')).toHaveCSS('position', 'fixed')
+    await expect(page.locator('.catalog-nav-wrap--primary')).toHaveCSS('position', 'relative')
+    await expect(page.locator('.catalog-nav-wrap--dock')).toHaveCSS('position', 'fixed')
     await expect(page.locator('.collection-bar--mobile-dock')).toHaveCSS('position', 'fixed')
     await expect(page.locator('.collection-bar--mobile-dock').getByText('Поделиться избранным', { exact: true })).toBeHidden()
     const positions = await page.evaluate(() => {
-      const navigation = document.querySelector('.catalog-nav-wrap')?.getBoundingClientRect()
+      const navigation = document.querySelector('.catalog-nav-wrap--dock')?.getBoundingClientRect()
       const dock = document.querySelector('.collection-bar--mobile-dock')?.getBoundingClientRect()
       return {
         navigationTop: navigation?.top ?? -1,

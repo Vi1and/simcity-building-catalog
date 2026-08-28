@@ -39,15 +39,19 @@ export class CatalogPage {
     return this.page.getByRole('button', { name: /^Избранное \d+$/ })
   }
 
+  get primaryNavigation(): Locator {
+    return this.page.getByRole('navigation', { name: 'Разделы каталога', exact: true })
+  }
+
   async showMayorPass(): Promise<void> {
-    await this.page.getByRole('button', { name: /Абонемент мэра/ }).click()
+    await this.primaryNavigation.getByRole('button', { name: /Абонемент мэра/ }).click()
   }
 
   async showOtherBuildings(): Promise<void> {
-    await this.page.getByRole('button', { name: /Другие здания/ }).click()
+    await this.primaryNavigation.getByRole('button', { name: /Другие здания/ }).click()
   }
 
   async showThemes(): Promise<void> {
-    await this.page.getByRole('button', { name: /Тематические/ }).click()
+    await this.primaryNavigation.getByRole('button', { name: /Тематические/ }).click()
   }
 }

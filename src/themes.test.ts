@@ -169,9 +169,19 @@ describe('thematic catalog', () => {
       'Контактный зоопарк',
       'Башня для наблюдения за китами',
     ]))
-    expect(namesForTheme('animals')).not.toContain('Китайский театр')
-    expect(namesForTheme('animals')).not.toContain('Коттедж в лесу')
-    expect(namesForTheme('animals')).not.toContain('Ледник свинафелльсьёкулл (сползающий) (гора)')
+    for (const unrelatedName of [
+      'Китайский театр',
+      'Коттедж в лесу',
+      'Ледник свинафелльсьёкулл (сползающий) (гора)',
+      'Базилика Святого Петра',
+      'Кит',
+      'Цветочный магазин "Лепесток"',
+      'Петршинская башня (гора)',
+      'Скульптура «Огненный конь»',
+      'Соломенная коза',
+    ]) {
+      expect(namesForTheme('animals')).not.toContain(unrelatedName)
+    }
   })
 
   it('separates bridges, transport, Alpha City and European regions', () => {

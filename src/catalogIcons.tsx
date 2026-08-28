@@ -1,4 +1,4 @@
-import type { ReactNode, SVGProps } from 'react'
+import type { ImgHTMLAttributes, ReactNode, SVGProps } from 'react'
 
 type SvgProps = Omit<SVGProps<SVGSVGElement>, 'children'>
 
@@ -148,6 +148,25 @@ const iconShapes = {
 
 export type SpecializationIconKey = keyof typeof iconShapes
 
+const specializationIconAssets: Record<SpecializationIconKey, string> = {
+  parks: 'parks.webp',
+  landscape: 'landscape.webp',
+  education: 'education.webp',
+  transport: 'transport.webp',
+  publicTransport: 'public-transport.webp',
+  beach: 'beach.webp',
+  entertainment: 'entertainment.webp',
+  mountain: 'mountain.webp',
+  gambling: 'gambling.webp',
+  monuments: 'monuments.webp',
+  space: 'space.webp',
+  clinic: 'clinic.webp',
+  fire: 'fire.webp',
+  police: 'police.webp',
+  services: 'services.webp',
+  uncategorized: 'uncategorized.webp',
+}
+
 const specializationIcons: Record<string, SpecializationIconKey> = {
   'без категории': 'uncategorized',
   'все службы': 'services',
@@ -172,28 +191,46 @@ export function specializationIconKey(value: string | null | undefined): Special
   return specializationIcons[value.trim().toLocaleLowerCase('ru')] ?? 'uncategorized'
 }
 
-interface SpecializationIconProps extends SvgProps {
+type GameIconProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'>
+
+interface SpecializationIconProps extends GameIconProps {
   specialization: string | null | undefined
 }
 
 export function SpecializationIcon({ specialization, ...props }: SpecializationIconProps) {
   const key = specializationIconKey(specialization)
   return (
-    <IconShell data-catalog-icon={key} {...props}>
-      {iconShapes[key]}
-    </IconShell>
+    <img
+      src={`icons/specializations/${specializationIconAssets[key]}`}
+      alt=""
+      draggable={false}
+      data-catalog-icon={key}
+      {...props}
+    />
   )
 }
 
-export function MayorPassIcon(props: SvgProps) {
+export function AllSpecializationsIcon(props: GameIconProps) {
   return (
-    <IconShell data-catalog-icon="mayor-pass" {...props}>
-      <path d="m24 3 15 12-4 20-11 10L13 35 9 15 24 3Z" fill="#08c85c" stroke="#057f42" strokeWidth="2" strokeLinejoin="round" />
-      <path d="m24 3 4 20-15 12-4-20L24 3Z" fill="#38ed75" opacity=".9" />
-      <path d="m24 3 15 12-11 8-4-20Z" fill="#a2ff9f" opacity=".65" />
-      <path d="m28 23 7 12-11 10V25l4-2Z" fill="#059f4e" opacity=".9" />
-      <path d="M24 3v22m0 0L13 35m11-10 11 10" stroke="#067d43" strokeWidth="1.5" opacity=".64" />
-    </IconShell>
+    <img
+      src="icons/specializations/all.webp"
+      alt=""
+      draggable={false}
+      data-catalog-icon="all"
+      {...props}
+    />
+  )
+}
+
+export function MayorPassIcon(props: GameIconProps) {
+  return (
+    <img
+      src="icons/specializations/mayor-pass.webp"
+      alt=""
+      draggable={false}
+      data-catalog-icon="mayor-pass"
+      {...props}
+    />
   )
 }
 

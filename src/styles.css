@@ -1048,9 +1048,10 @@ a:focus-visible {
   background: rgba(39, 184, 223, 0.12);
 }
 
-.catalog-select__option-icon svg {
+.catalog-select__option-icon :is(svg, img) {
   width: 21px;
   height: 21px;
+  object-fit: contain;
 }
 
 .catalog-select__chevron {
@@ -1205,7 +1206,7 @@ a:focus-visible {
 .specialization-rail {
   display: grid;
   grid-template-columns: repeat(9, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(62px, auto));
+  grid-template-rows: repeat(2, minmax(70px, auto));
   grid-auto-flow: column;
   gap: 8px;
   overflow: visible;
@@ -1223,12 +1224,12 @@ a:focus-visible {
 .specialization-rail button {
   display: flex;
   width: 100%;
-  min-height: 60px;
+  min-height: 68px;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: 3px;
-  padding: 5px 6px;
+  gap: 1px;
+  padding: 4px 6px 5px;
   color: #49615e;
   border: 1px solid #d3d7d1;
   border-radius: 14px 5px 14px 5px;
@@ -1242,19 +1243,18 @@ a:focus-visible {
 
 .specialization-rail__icon {
   display: grid;
-  width: 31px;
-  height: 31px;
-  flex: 0 0 31px;
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
   place-items: center;
-  border: 1px solid rgba(28, 126, 161, 0.14);
-  border-radius: 50%;
-  background: rgba(93, 209, 235, 0.12);
-  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+  transition: transform 150ms ease;
 }
 
-.specialization-rail__icon svg {
-  width: 28px;
-  height: 28px;
+.specialization-rail__icon :is(svg, img) {
+  width: 43px;
+  height: 43px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px rgba(4, 78, 108, 0.18));
 }
 
 .specialization-rail button > span:last-child {
@@ -1263,15 +1263,13 @@ a:focus-visible {
 
 .specialization-rail button:hover,
 .specialization-rail button.is-active {
-  color: white;
-  border-color: var(--teal);
-  background: var(--teal);
+  color: #165b65;
+  border-color: #72bfd0;
+  background: #e2f5f8;
 }
 
 .specialization-rail button:hover .specialization-rail__icon,
 .specialization-rail button.is-active .specialization-rail__icon {
-  border-color: rgba(255, 255, 255, 0.72);
-  background: rgba(237, 253, 255, 0.94);
   transform: translateY(-1px);
 }
 
@@ -1602,10 +1600,11 @@ a:focus-visible {
   forced-color-adjust: none;
 }
 
-.building-card__index svg {
+.building-card__index :is(svg, img) {
   width: 28px;
   height: 28px;
   flex: 0 0 auto;
+  object-fit: contain;
   filter: drop-shadow(0 2px 2px rgba(4, 78, 108, 0.18));
 }
 
@@ -1614,7 +1613,7 @@ a:focus-visible {
   padding: 4px;
 }
 
-.building-card__index--season svg {
+.building-card__index--season :is(svg, img) {
   width: 25px;
   height: 25px;
 }
@@ -1635,6 +1634,10 @@ a:focus-visible {
 }
 
 .building-card__image-count {
+  position: absolute;
+  z-index: 4;
+  right: 10px;
+  bottom: 10px;
   display: inline-flex;
   min-width: 31px;
   min-height: 30px;
@@ -1642,14 +1645,17 @@ a:focus-visible {
   justify-content: center;
   gap: 4px;
   padding: 4px 6px;
-  color: var(--teal);
-  border: 1px solid rgba(35, 123, 117, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.42);
   border-radius: 999px;
-  background: rgba(35, 123, 117, 0.06);
+  background: rgba(8, 31, 30, 0.62);
+  box-shadow: 0 3px 10px rgba(8, 31, 30, 0.2);
   font-size: 0.69rem;
   font-weight: 720;
   line-height: 1;
   white-space: nowrap;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
   forced-color-adjust: none;
 }
 
@@ -1679,9 +1685,9 @@ a:focus-visible {
 }
 
 .building-card--mayor .building-card__image-count {
-  color: #966115;
-  border-color: rgba(150, 97, 21, 0.2);
-  background: rgba(212, 149, 42, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(8, 31, 30, 0.62);
 }
 
 .building-card__image-count strong {
@@ -2297,9 +2303,10 @@ dialog::backdrop {
   backdrop-filter: blur(8px);
 }
 
-.detail-dialog__badge > svg {
+.detail-dialog__badge > :is(svg, img) {
   width: 22px;
   height: 22px;
+  object-fit: contain;
   flex: 0 0 22px;
 }
 
@@ -2488,9 +2495,10 @@ dialog::backdrop {
   background: #d4eee8;
 }
 
-.detail-highlight > span > svg {
+.detail-highlight > span > :is(svg, img) {
   width: 28px;
   height: 28px;
+  object-fit: contain;
 }
 
 .detail-dialog .detail-highlight dt {
@@ -3069,7 +3077,7 @@ dialog::backdrop {
 
   .specialization-rail {
     grid-template-columns: none;
-    grid-template-rows: repeat(2, 62px);
+    grid-template-rows: repeat(2, 70px);
     grid-auto-columns: 112px;
     overflow-x: auto;
     padding: 2px 2px 7px;
@@ -3621,10 +3629,13 @@ dialog::backdrop {
   }
 
   .building-card__body {
-    min-height: 214px;
+    min-height: 0;
+    padding: 11px 11px 9px;
   }
 
   .building-card__context {
+    margin-top: 6px;
+    padding-top: 6px;
     padding-bottom: 0;
   }
 
@@ -3638,12 +3649,12 @@ dialog::backdrop {
   }
 
   .building-grid--mobile-2 .building-card__body {
-    min-height: 224px;
-    padding: 11px 10px 9px;
+    min-height: 0;
+    padding: 8px 8px 7px;
   }
 
   .building-grid--mobile-2 .building-card__heading {
-    min-height: 48px;
+    min-height: 42px;
   }
 
   .building-grid--mobile-2 .building-card__heading h2 {
@@ -3657,7 +3668,7 @@ dialog::backdrop {
 
   .building-grid--mobile-2 .building-card__feature {
     max-width: 100%;
-    margin-top: 6px;
+    margin-top: 5px;
     padding: 4px 6px;
     font-size: 0.54rem;
     white-space: normal;
@@ -3673,7 +3684,7 @@ dialog::backdrop {
 
   .building-grid--mobile-2 .building-card__facts {
     gap: 4px;
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
   .building-grid--mobile-2 .card-fact {
@@ -3694,8 +3705,8 @@ dialog::backdrop {
   .building-grid--mobile-2 .building-card__context {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 4px;
-    margin-top: auto;
-    padding-top: 7px;
+    margin-top: 5px;
+    padding-top: 5px;
     padding-bottom: 0;
   }
 
@@ -3755,12 +3766,12 @@ dialog::backdrop {
     width: 33px;
   }
 
-  .building-grid--mobile-2 .building-card__index svg {
+  .building-grid--mobile-2 .building-card__index :is(svg, img) {
     width: 24px;
     height: 24px;
   }
 
-  .building-grid--mobile-2 .building-card__index--season svg {
+  .building-grid--mobile-2 .building-card__index--season :is(svg, img) {
     width: 21px;
     height: 21px;
   }
@@ -3770,6 +3781,8 @@ dialog::backdrop {
   }
 
   .building-grid--mobile-2 .building-card__image-count {
+    right: 8px;
+    bottom: 8px;
     min-width: 29px;
     min-height: 27px;
     gap: 3px;
@@ -4240,12 +4253,13 @@ html[data-theme='dark'] .building-card__image-count {
 }
 
 html[data-theme='dark'] .building-card__image-count {
-  color: #9ed8d0;
-  background: rgba(105, 200, 188, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(8, 31, 30, 0.72);
 }
 
 html[data-theme='dark'] .building-card--mayor .details-link,
-html[data-theme='dark'] .building-card--mayor .building-card__image-count {
+html[data-theme='dark'] .building-card--mayor .details-link {
   color: #e4b456;
 }
 

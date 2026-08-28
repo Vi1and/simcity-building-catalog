@@ -49,7 +49,7 @@ import type { Building, CatalogData, Section, SectionFilters, SortMode } from '.
 import { formatFavoriteShareText, matchFavoriteNames } from './favoriteSharing'
 import { buildingMatchesTheme, buildingThemeIds, catalogThemes, findCatalogTheme } from './themes'
 import { useFavorites } from './useFavorites'
-import { CatalogThemeIcon, MayorPassIcon, SpecializationIcon } from './catalogIcons'
+import { AllSpecializationsIcon, CatalogThemeIcon, MayorPassIcon, SpecializationIcon } from './catalogIcons'
 
 const catalog = catalogJson as CatalogData
 const ALL_SORT_MODES = Object.keys(sortLabels) as SortMode[]
@@ -403,6 +403,17 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
             ))}
           </span>
         )}
+        {images.length > 0 && (
+          <span
+            className="building-card__image-count"
+            role="img"
+            aria-label={formatPhotoCount(images.length)}
+            title={formatPhotoCount(images.length)}
+          >
+            <strong aria-hidden="true">{images.length}</strong>
+            <Images size={14} aria-hidden="true" />
+          </span>
+        )}
         <FavoriteButton building={building} active={favorite} onToggle={onFavorite} />
       </div>
 
@@ -450,17 +461,6 @@ function BuildingCard({ building, favorite, onFavorite, onOpen }: BuildingCardPr
             </div>
           ) : null}
           <div className="building-card__context-actions">
-            {images.length > 0 && (
-              <span
-                className="building-card__image-count"
-                role="img"
-                aria-label={formatPhotoCount(images.length)}
-                title={formatPhotoCount(images.length)}
-              >
-                <strong aria-hidden="true">{images.length}</strong>
-                <Images size={14} aria-hidden="true" />
-              </span>
-            )}
             <button
               type="button"
               className="details-link"
@@ -676,7 +676,7 @@ function FilterPanel({ section, view, filters, footprints, onChange }: FilterPan
           className="control-field--wide"
           value={filters.specialization}
           options={[
-            { value: 'all', label: 'Все специализации', icon: <Shapes aria-hidden='true' /> },
+            { value: 'all', label: 'Все специализации', icon: <AllSpecializationsIcon aria-hidden='true' /> },
             ...catalog.meta.specializations.map((specialization) => ({
               value: specialization,
               label: specialization,
@@ -1892,7 +1892,7 @@ export default function App() {
                 className={activeFilters.specialization === 'all' ? 'is-active' : ''}
                 onClick={() => updateFilters({ specialization: 'all' })}
               >
-                <span className='specialization-rail__icon' aria-hidden='true'><Shapes /></span>
+                <span className='specialization-rail__icon' aria-hidden='true'><AllSpecializationsIcon /></span>
                 <span>Все</span>
               </button>
               {catalog.meta.specializations.map((specialization) => (

@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import catalogJson from './data/catalog.json'
 import {
+  AllSpecializationsIcon,
   CatalogThemeIcon,
   CountryFlag,
   MayorPassIcon,
@@ -20,9 +21,15 @@ describe('catalog iconography', () => {
     expect(renderToStaticMarkup(<SpecializationIcon specialization="Монументы" />)).toContain('data-catalog-icon="monuments"')
   })
 
-  it('renders the mayor pass mark as a repository-owned SVG', () => {
+  it('renders repository-owned 3D game icons for all specializations and the mayor pass', () => {
+    const allMarkup = renderToStaticMarkup(<AllSpecializationsIcon />)
     const markup = renderToStaticMarkup(<MayorPassIcon />)
-    expect(markup).toContain('<svg')
+
+    expect(allMarkup).toContain('<img')
+    expect(allMarkup).toContain('icons/specializations/all.webp')
+    expect(allMarkup).toContain('data-catalog-icon="all"')
+    expect(markup).toContain('<img')
+    expect(markup).toContain('icons/specializations/mayor-pass.webp')
     expect(markup).toContain('data-catalog-icon="mayor-pass"')
   })
 

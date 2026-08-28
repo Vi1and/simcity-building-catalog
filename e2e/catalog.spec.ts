@@ -259,7 +259,7 @@ test.describe('Городской архив', () => {
 
     await expect(catalog.cards).toHaveCount(1)
     const card = catalog.cards.first()
-    const imageCount = card.locator('.building-card__context-actions .building-card__image-count')
+    const imageCount = card.locator('.building-card__media > .building-card__image-count')
     await expect(imageCount).toHaveAccessibleName('3 фото')
     await expect(imageCount).toHaveText('3')
     const dots = card.locator('.building-card__carousel-dots i')
@@ -439,7 +439,8 @@ test.describe('Городской архив', () => {
       [...new Set(buttons.map((button) => Math.round(button.getBoundingClientRect().top)))],
     )
     expect(tops).toHaveLength(2)
-    await expect(page.locator('.specialization-rail [data-catalog-icon]')).toHaveCount(16)
+    await expect(page.locator('.specialization-rail [data-catalog-icon]')).toHaveCount(17)
+    await expect(page.locator('.specialization-rail [data-catalog-icon=all]')).toBeVisible()
     await expect(
       page.locator('.specialization-rail').getByRole('button', { name: /^космос$/i })
         .locator('[data-catalog-icon=space]'),
@@ -630,6 +631,32 @@ test.describe('Мобильный каталог', () => {
     await expect(grid).toHaveClass(/building-grid--mobile-2/)
     await expect(catalog.cards.first().locator('.building-card__context')).toHaveCSS('border-top-style', 'none')
     await expect(catalog.cards.first().locator('.details-link')).toHaveText('Открыть')
+    const firstCard = catalog.cards.first()
+    const imageCount = firstCard.locator('.building-card__media > .building-card__image-count')
+    await expect(imageCount).toBeVisible()
+    const cardLayout = await firstCard.evaluate((card) => {
+      const media = card.querySelector('.building-card__media')?.getBoundingClientRect()
+      const count = card.querySelector('.building-card__image-count')?.getBoundingClientRect()
+      const body = card.querySelector('.building-card__body')
+      const context = card.querySelector('.building-card__context')
+      if (!media || !count || !body || !context) throw new Error('Card layout is incomplete')
+      const bodyStyle = getComputedStyle(body)
+      const contextStyle = getComputedStyle(context)
+      return {
+        countRightGap: media.right - count.right,
+        countBottomGap: media.bottom - count.bottom,
+        bodyMinHeight: bodyStyle.minHeight,
+        bodyPaddingTop: Number.parseFloat(bodyStyle.paddingTop),
+        contextMarginTop: Number.parseFloat(contextStyle.marginTop),
+      }
+    })
+    expect(cardLayout.countRightGap).toBeGreaterThanOrEqual(7)
+    expect(cardLayout.countRightGap).toBeLessThanOrEqual(9)
+    expect(cardLayout.countBottomGap).toBeGreaterThanOrEqual(7)
+    expect(cardLayout.countBottomGap).toBeLessThanOrEqual(9)
+    expect(cardLayout.bodyMinHeight).toBe('0px')
+    expect(cardLayout.bodyPaddingTop).toBeLessThanOrEqual(8)
+    expect(cardLayout.contextMarginTop).toBeLessThanOrEqual(5)
     const firstRowTops = await catalog.cards.evaluateAll((cards) =>
       cards.slice(0, 2).map((card) => Math.round(card.getBoundingClientRect().top)),
     )
